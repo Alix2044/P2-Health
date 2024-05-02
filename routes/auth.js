@@ -2,33 +2,24 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
-const {ensureAuthenticated, redirectToDashboardIfAuthenticated} = require('../auth/isAuthenticated');
 const passport = require('passport');
 
-const User = require('../models/User'); 
+const User = require('../models/User');
+const { ensureAuthenticated, redirectToDashboardIfAuthenticated } = require('../auth/isAuthenticated');
 
-
-
-
-router.get('/register',redirectToDashboardIfAuthenticated, (req, res) => {
+router.get('/register', redirectToDashboardIfAuthenticated, (req, res) => {
     res.render('register');
 });
 
-
-
-router.get('/login',redirectToDashboardIfAuthenticated,(req, res) => {
+router.get('/login', redirectToDashboardIfAuthenticated, (req, res) => {
     res.render('login');
 });
 
-/* Handling auth & form data */
-
-router.post('/login', (req, res, next) => {
-    passport.authenticate('local', {
-        successRedirect: '/dashboard', // Redirect to dashboard on successful login
-        failureRedirect: '/auth/login', // Redirect back to login page on failed login
-        failureFlash: true // Enable flash messages for failed login attempts
-    })(req, res, next);
-});
+router.post('/login', passport.authenticate('local', {
+    successRedirect: '/dashboard',
+    failureRedirect: '/auth/login',
+    failureFlash: true
+}));
 
 router.post('/register', async (req, res) => {
     const { name, email, password, password2 } = req.body;
@@ -48,7 +39,7 @@ router.post('/register', async (req, res) => {
 
     if (errors.length > 0) {
         res.render('register', {
-            errors: errors,
+            errors,
             name,
             email,
             password,
@@ -59,46 +50,35 @@ router.post('/register', async (req, res) => {
             const userFound = await User.findOne({ email: email });
             if (userFound) {
                 errors.push({ msg: 'This email/user exists' });
-                // Render form with errors...
                 res.render('register', {
-                    errors: errors,
+                    errors,
                     name,
                     email,
                     password,
                     password2
                 });
             } else {
-                // Hash password
-                const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
-
+                const hashedPassword = await bcrypt.hash(password, 10);
                 const newUser = new User({
                     fullName: name,
                     email,
-                    password: hashedPassword // Save hashed password
+                    password: hashedPassword
                 });
-
-                // Save user to database
                 await newUser.save();
                 console.log('User registered:', newUser);
+               // req.flash('success_msg', 'You are now registered and can log in');
                 res.redirect('/auth/login');
-
             }
         } catch (error) {
             console.error('Error during registration:', error);
-           
-           
+            res.status(500).send('Error during registration');
         }
     }
 });
 
-router.get('/logout', (req, res) => {
-    // Log the user out by clearing the session
+router.get('/logout', ensureAuthenticated, (req, res) => {
     req.logout();
-    
-    // Display a success message using flash
-    req.flash('success_msg', 'You have been successfully logged out.');
-
-    // Redirect the user to the homepage
+    req.flash('success_msg', 'You have been successfully logged out');
     res.redirect('/');
 });
 

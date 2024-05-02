@@ -1,0 +1,17 @@
+<!-- views/all_posts.ejs -->
+<%- include('partials/header') %>
+
+<div class="container mt-5">
+  <h2 class="mb-4">All Posts</h2>
+  <% posts.forEach(post => { %>
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title"><%= post.title %></h5>
+        <p class="card-text"><%= post.content %></p>
+        <p class="card-text">Author: <%= post.author.fullName %></p>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>

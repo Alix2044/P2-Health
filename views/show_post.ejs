@@ -1,0 +1,15 @@
+<!-- views/show_post.ejs -->
+<%- include('partials/header') %>
+
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body">
+      <h2 class="card-title"><%= post.title %></h2>
+      <p class="card-text"><%= post.content %></p>
+      <p class="card-text">Author: <%= post.author.fullName %></p>
+      <p class="card-text">Created At: <%= post.createdAt.toDateString() %></p>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

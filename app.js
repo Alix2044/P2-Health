@@ -6,11 +6,10 @@ const dotenv = require('dotenv');
 const path = require('path')
 const passport = require('passport');
 const morgan = require('morgan');
+const MongoStore = require('connect-mongo');
 
 
-
-
-const app = express();
+const app = express(); 
 
 
 
@@ -36,14 +35,20 @@ mongoose.connect(process.env.MONGO_URI)
   });
 
 
-  app.use(morgan('tiny'));
-// Sessions from Express to save sessions for login 
-app.use( sessions({
-  secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true
-  })
-);
+  app.use(morgan('dev'));
+// Sessions from Express to save sessions for login + mongoDB sessions to keep the sessions after restart
+app.use(sessions({
+    secret: 'process.env.SECRET', 
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ 
+        mongoUrl: 'process.env.MONGO_URI', 
+        collectionName: 'sessions' 
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 // milliseconds in a day. Session expiration time (1 day)
+    }
+}));
 
 
 app.use(express.static(path.join(__dirname,'public')))
@@ -57,6 +62,7 @@ app.use(passport.session());
 // Routes 
 app.use('/',require('./routes/index'))
 app.use('/auth',require('./routes/auth'))
+app.use('/posts',require('./routes/posts'))
 
 app.use((req, res, next) => {
  res.status(404).render('404');
