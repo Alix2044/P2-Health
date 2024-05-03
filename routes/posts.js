@@ -7,10 +7,7 @@ const Post = require('../models/Post');
 // Display all posts
 router.get('/', async (req, res) => {
   try {
-    // Fetch all posts from the database
     const posts = await Post.find().populate('author');
-
-    // Render the view template and pass the posts data
     res.render('all_posts', { posts });
   } catch (err) {
     console.error(err);
@@ -31,7 +28,7 @@ router.post('/', async (req, res) => {
       return res.status(401).send('Unauthorized');
     }
 
-    const author = req.user._id; // Assign the author field here
+    const author = req.user._id; 
 
     const newPost = new Post({
       title,
@@ -48,16 +45,16 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id).populate('author');
-    if (!post) {
-      return res.status(404).send('Post not found');
+    try {
+        const post = await Post.findById(req.params.id).populate('author');
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+        res.render('show_post', { post });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving post');
     }
-    res.render('show_post', { post });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error retrieving post');
-  }
 });
 
 module.exports = router;

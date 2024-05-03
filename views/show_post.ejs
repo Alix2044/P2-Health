@@ -1,4 +1,3 @@
-<!-- views/show_post.ejs -->
 <%- include('partials/header') %>
 
 <div class="container mt-5">
@@ -8,8 +7,25 @@
       <p class="card-text"><%= post.content %></p>
       <p class="card-text">Author: <%= post.author.fullName %></p>
       <p class="card-text">Created At: <%= post.createdAt.toDateString() %></p>
+      <!-- Add button to start chat room -->
+      <a href="/chat/<%= post._id %>" class="btn btn-primary">Start Chat</a>
     </div>
   </div>
 </div>
+<script>
+        var socket = io();
+
+        // Handle sending chat messages
+        $('form').submit(function(){
+            socket.emit('chat message', $('#m').val());
+            $('#m').val('');
+            return false;
+        });
+
+        // Handle receiving chat messages
+        socket.on('chat message', function(msg){
+            $('#messages').append($('<li>').text(msg));
+        });
+    </script>
 
 <%- include('partials/footer') %>

@@ -66,7 +66,7 @@ router.post('/register', async (req, res) => {
                 });
                 await newUser.save();
                 console.log('User registered:', newUser);
-               // req.flash('success_msg', 'You are now registered and can log in');
+              
                 res.redirect('/auth/login');
             }
         } catch (error) {
@@ -77,9 +77,14 @@ router.post('/register', async (req, res) => {
 });
 
 router.get('/logout', ensureAuthenticated, (req, res) => {
-    req.logout();
-    req.flash('success_msg', 'You have been successfully logged out');
-    res.redirect('/');
+    req.logout((err) => {
+        if (err) {
+            console.error('Error logging out:', err);
+            res.status(500).send('Error logging out');
+        } else {
+            res.redirect('/');
+        }
+    });
 });
 
 module.exports = router;

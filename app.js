@@ -1,4 +1,5 @@
 const express = require('express');
+const flash = require('connect-flash');
 const expressLayouts = require('express-ejs-layouts');
 const mongoose = require('mongoose');
 const sessions = require('express-session');
@@ -7,6 +8,7 @@ const path = require('path')
 const passport = require('passport');
 const morgan = require('morgan');
 const MongoStore = require('connect-mongo');
+const {Server } = require('socket.io')
 
 
 const app = express(); 
@@ -38,11 +40,11 @@ mongoose.connect(process.env.MONGO_URI)
   app.use(morgan('dev'));
 // Sessions from Express to save sessions for login + mongoDB sessions to keep the sessions after restart
 app.use(sessions({
-    secret: 'process.env.SECRET', 
+    secret: process.env.SECRET, 
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ 
-        mongoUrl: 'process.env.MONGO_URI', 
+        mongoUrl: process.env.MONGO_URI, 
         collectionName: 'sessions' 
     }),
     cookie: {
@@ -50,6 +52,7 @@ app.use(sessions({
     }
 }));
 
+app.use(flash());
 
 app.use(express.static(path.join(__dirname,'public')))
 
@@ -63,17 +66,28 @@ app.use(passport.session());
 app.use('/',require('./routes/index'))
 app.use('/auth',require('./routes/auth'))
 app.use('/posts',require('./routes/posts'))
+app.use('/chat',require('./routes/chat'))
 
+/*
 app.use((req, res, next) => {
  res.status(404).render('404');
 });
-
+*/
 
 const PORT =  process.env.PORT || 3000;
 
 
-app.listen( PORT, () => {
+const server  = app.listen( PORT, () => {
     console.log(`Server is running on port ${PORT} on http://localhost:${PORT}`);
 });
 
- 
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+  socket.on('chat message', (data) => {
+    const { roomId, message } = data;
+    console.log(`Received message in room ${roomId}: ${message}`);
+    // Send the message to all clients in the same room
+    io.to(roomId).emit('chat message', message);
+  });
+});
