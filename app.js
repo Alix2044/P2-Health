@@ -82,12 +82,8 @@ const server  = app.listen( PORT, () => {
 });
 
 const io = new Server(server);
-
 io.on('connection', (socket) => {
-  socket.on('chat message', (data) => {
-    const { roomId, message } = data;
-    console.log(`Received message in room ${roomId}: ${message}`);
-    // Send the message to all clients in the same room
-    io.to(roomId).emit('chat message', message);
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg);
   });
 });
