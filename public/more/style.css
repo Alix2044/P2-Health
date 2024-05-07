@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Blog Cards</title>
-  <style>@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap");
 
 *,
 *::before,
@@ -110,35 +105,4 @@ background: linear-gradient(to bottom, #ef473a, #cb2d3e);
 
 .user__info > small {
   color: #666;
-}</style>
-</head>
-<body>
-<div class="container">
-  <% posts.forEach(post => { %>
-    <div class="card">
-      <div class="card__header">
-        <!-- Display the image -->
-        <img src="<%= post.image %>" alt="card__image" class="card__image" width="600">
-      </div>
-      <div class="card__body">
-        <!-- Display other post details -->
-        <span class="tag tag-blue"><%= post.category %></span>
-        <h4><%= post.title %></h4>
-        <p><%= post.content %></p>
-      </div>
-      <div class="card__footer">
-        <div class="user">
-          <!-- Display author avatar -->
-          <img src="<%= post.author.avatarUrl %>" alt="user__image" class="user__image">
-          <!-- Display author name -->
-          <div class="user__info">
-            <h5><%= post.author.fullName %></h5>
-            <small><%= post.createdAt %></small>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% }) %>
-</div>
-</body>
-</html>
+}
