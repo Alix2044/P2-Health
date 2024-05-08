@@ -1,5 +1,5 @@
 const express = require('express');
-const flash = require('connect-flash');
+const flash = require('express-flash');
 const expressLayouts = require('express-ejs-layouts');
 const mongoose = require('mongoose');
 const sessions = require('express-session');
@@ -52,9 +52,13 @@ app.use(sessions({
     }
 }));
 
+// Adding flash middleware for flash messages
 app.use(flash());
 
 app.use(express.static(path.join(__dirname,'public')))
+
+
+app.use('/uploads', express.static('uploads'));
 
 // Passport configuration
 require('./auth/passportConfig')(passport);

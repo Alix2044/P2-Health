@@ -6,7 +6,6 @@ const path = require('path');
 const User = require('../models/User');
 
 
-// Set up multer storage and file upload configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // Specify the directory where uploaded files will be stored
@@ -32,6 +31,7 @@ const upload = multer({
   }
 });
 
+
 // Display all posts
 router.get('/', async (req, res) => {
   try {
@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/new', (req, res) => {
+router.get('/new', upload.single('image'),(req, res) => {
   res.render('newPost');
 });
 
@@ -51,29 +51,17 @@ router.get('/new', (req, res) => {
 router.post('/new', upload.single('image'), async (req, res) => {
   try {
     const { title, content } = req.body;
-
-    // Ensure req.user is defined before accessing req.user._id
-    if (!req.user) {
-      return res.status(401).send('Unauthorized');
-    }
-
     const author = req.user._id;
-
-    let imagePath;
-    if (req.file) {
-      imagePath = req.file.path;
-    }
+    let imagePath = req.file ? req.file.path : null;
 
     const newPost = new Post({
       title,
       content,
       author,
-      image: imagePath // Save the file path in the 'image' field
+      image: imagePath
     });
 
     await newPost.save();
-
-    // Update user's posts array with the new post
     await User.findByIdAndUpdate(author, { $push: { posts: newPost._id } });
 
     res.redirect(`/posts/${newPost._id}`);
