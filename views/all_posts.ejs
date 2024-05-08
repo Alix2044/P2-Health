@@ -133,12 +133,25 @@ background: linear-gradient(to bottom, #ef473a, #cb2d3e);
           <!-- Display author name -->
           <div class="user__info">
             <h5><%= post.author.fullName %></h5>
-            <small><%= post.createdAt %></small>
+            <small class="created-at"><%= post.createdAt %></small>
           </div>
         </div>
       </div>
     </div>
   <% }) %>
 </div>
+
+<script>
+  // Format createdAt dates to "x days ago" format
+  const createdAtElements = document.querySelectorAll('.created-at');
+  createdAtElements.forEach(element => {
+    const createdAt = new Date(element.textContent);
+    const currentDate = new Date();
+    const differenceInDays = Math.floor((currentDate - createdAt) / (1000 * 60 * 60 * 24));
+    const formattedDate =  differenceInDays === 0 ? 'today' : (differenceInDays === 1 ? '1 day ago' : `${differenceInDays} days ago`);
+    element.textContent = formattedDate;
+  });
+</script>
+
 </body>
 </html>

@@ -4,6 +4,8 @@ const Post = require('../models/Post');
 const multer = require('multer');
 const path = require('path');
 const User = require('../models/User');
+const Intl = require('date-time-format-timezone'); 
+
 
 
 const storage = multer.diskStorage({
@@ -61,12 +63,14 @@ router.post('/new', upload.single('image'), async (req, res) => {
 
 
 
+    
+
 
     const newPost = new Post({
       title,
       content,
       author,
-      image: imagePath
+      image: imagePath,
     });
 
     await newPost.save();
