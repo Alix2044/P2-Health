@@ -51,8 +51,16 @@ router.get('/new', upload.single('image'),(req, res) => {
 router.post('/new', upload.single('image'), async (req, res) => {
   try {
     const { title, content } = req.body;
-    const author = req.user._id;
+
     let imagePath = req.file ? req.file.path : null;
+  if (!req.user) {
+      return res.status(401).send('Unauthorized');
+    }
+
+    const author = req.user._id; 
+
+
+
 
     const newPost = new Post({
       title,
