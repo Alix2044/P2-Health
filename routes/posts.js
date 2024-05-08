@@ -4,24 +4,24 @@ const Post = require('../models/Post');
 const multer = require('multer');
 const path = require('path');
 const User = require('../models/User');
-const Intl = require('date-time-format-timezone'); 
+
 
 
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Specify the directory where uploaded files will be stored
+    cb(null, 'uploads/'); // Directory where uploaded files will be stored
   },
   filename: (req, file, cb) => {
     const fileName = `${Date.now()}-${file.originalname}`;
-    cb(null, fileName); // Use a unique filename for each uploaded file
+    cb(null, fileName); // Unique filename for each uploaded file
   }
 });
 
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    // Check file type to allow only images
+    // file type to allow only images
     const filetypes = /jpeg|jpg|png|gif/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -38,7 +38,7 @@ const upload = multer({
 router.get('/', async (req, res) => {
   try {
     const posts = await Post.find().populate('author');
-    res.render('all_posts', { posts });
+    res.render('allPosts', { posts });
   } catch (err) {
     console.error(err);
     res.status(500).send('Error retrieving posts');
@@ -70,13 +70,14 @@ router.post('/new', upload.single('image'), async (req, res) => {
       title,
       content,
       author,
-      image: imagePath,
-    });
+    image: imagePath ? imagePath.replace(/\\/g, '/') : null // Replace backslashes with forward slashes
 
+    });
+console.log(newPost.image);
     await newPost.save();
     await User.findByIdAndUpdate(author, { $push: { posts: newPost._id } });
 
-    res.redirect(`/posts/${newPost._id}`);
+    res.redirect(`/posts`);
   } catch (err) {
     console.error(err);
     res.status(500).send('Error creating post');

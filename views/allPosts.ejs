@@ -117,8 +117,10 @@ background: linear-gradient(to bottom, #ef473a, #cb2d3e);
   <% posts.forEach(post => { %>
     <div class="card">
       <div class="card__header">
-        <!-- Display the image -->
-        <img src="<%= post.image %>" alt="card__image" class="card__image" width="600">
+      
+        <% if (post.image) { %>
+          <img src="/<%= post.image %>" alt="card__image" class="card__image" width="600">
+        <% } %>
       </div>
       <div class="card__body">
         <!-- Display other post details -->
@@ -128,14 +130,16 @@ background: linear-gradient(to bottom, #ef473a, #cb2d3e);
       </div>
       <div class="card__footer">
         <div class="user">
-          <!-- Display author avatar -->
-          <img src="<%= post.author.avatarUrl %>" alt="user__image" class="user__image">
+         
           <!-- Display author name -->
           <div class="user__info">
             <h5><%= post.author.fullName %></h5>
             <small class="created-at"><%= post.createdAt %></small>
           </div>
         </div>
+         <form action="/chat/<%= post._id %>" method="GET">
+          <button type="submit" class="btn btn-primary">Start Chat</button>
+        </form>
       </div>
     </div>
   <% }) %>
@@ -148,7 +152,7 @@ background: linear-gradient(to bottom, #ef473a, #cb2d3e);
     const createdAt = new Date(element.textContent);
     const currentDate = new Date();
     const differenceInDays = Math.floor((currentDate - createdAt) / (1000 * 60 * 60 * 24));
-    const formattedDate =  differenceInDays === 0 ? 'today' : (differenceInDays === 1 ? '1 day ago' : `${differenceInDays} days ago`);
+    const formattedDate =  differenceInDays === 0 ? 'today' : (differenceInDays === 1 ? 'yesterday' : `${differenceInDays} days ago`);
     element.textContent = formattedDate;
   });
 </script>

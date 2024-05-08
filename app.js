@@ -72,11 +72,12 @@ app.use('/auth',require('./routes/auth'))
 app.use('/posts',require('./routes/posts'))
 app.use('/chat',require('./routes/chat'))
 
-/*
+
+// Routes doesn't exis 
 app.use((req, res, next) => {
- res.status(404).render('404');
+ res.render('404');
 });
-*/
+
 
 const PORT =  process.env.PORT || 3000;
 
@@ -86,8 +87,14 @@ const server  = app.listen( PORT, () => {
 });
 
 const io = new Server(server);
+
+
 io.on('connection', (socket) => {
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+  socket.on('joinRoom', (roomId) => {
+    socket.join(roomId); 
+  });
+
+  socket.on('chatMessage', ({ roomId, msg }) => {
+    io.to(roomId).emit('message', msg); 
   });
 });
