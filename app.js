@@ -8,8 +8,8 @@ const path = require('path')
 const passport = require('passport');
 const morgan = require('morgan');
 const MongoStore = require('connect-mongo');
-const {Server } = require('socket.io')
-
+const {Server } = require('socket.io');
+const Challenge = require('./models/Challenge');
 
 const app = express(); 
 
@@ -54,7 +54,7 @@ app.use(sessions({
 
 // Adding flash middleware for flash messages
 app.use(flash());
-
+app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')))
 
 
@@ -71,13 +71,14 @@ app.use('/',require('./routes/index'))
 app.use('/auth',require('./routes/auth'))
 app.use('/posts',require('./routes/posts'))
 app.use('/chat',require('./routes/chat'))
+app.use('/challenges', require('./routes/challenge'));
 
-
+/*
 // Routes doesn't exis 
 app.use((req, res, next) => {
  res.render('404');
 });
-
+*/
 
 const PORT =  process.env.PORT || 3000;
 

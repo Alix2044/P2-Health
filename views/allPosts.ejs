@@ -111,6 +111,7 @@ background: linear-gradient(to bottom, #ef473a, #cb2d3e);
 .user__info > small {
   color: #666;
 }</style>
+
 </head>
 <body>
 <div class="container">
@@ -136,9 +137,18 @@ background: linear-gradient(to bottom, #ef473a, #cb2d3e);
             <h5><%= post.author.fullName %></h5>
             <small class="created-at"><%= post.createdAt %></small>
           </div>
+      
         </div>
          <form action="/chat/<%= post._id %>" method="GET">
-          <button type="submit" class="btn btn-primary">Start Chat</button>
+           <button type="submit" class="btn btn-primary">Start Chat</button>
+         
+          </form>
+         <form action="/posts/interested/<%= post._id %>" method="POST">
+          <% if (user && user.interestedPosts.includes(post._id)) { %>
+            <button type="submit" class="btn btn-danger">Not Interested</button>
+          <% } else { %>
+            <button type="submit" class="btn btn-primary">Interest</button>
+          <% } %>
         </form>
       </div>
     </div>

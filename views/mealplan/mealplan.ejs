@@ -1,0 +1,42 @@
+<h1>Weekly Meal Plans</h1>
+        <div>
+            <h2>Plan for week starting on <%= new Date(meals.startDate).toDateString() %></h2>
+            <% meals.dailyPlans.forEach(function(day) { %>
+                <div>
+                    <h3>Meals for <%= new Date(day.date).toDateString() %>:</h3>
+                    <div>
+                        <h2>Breakfast</h2>
+                        <h3><%= day.meals.breakfast.name %></h3>
+                        <img src="<%= day.meals.breakfast.image %>" alt="Image of breakfast">
+                        <p>For instructions and ingredients <a href="<%= day.meals.breakfast.url %>" target="_blank">Click here</a></p>
+                        <p>Calories: <%= day.meals.breakfast.nutrition.calorie %></p>
+                        <p>Protein: <%= day.meals.breakfast.nutrition.protein %></p>
+                        <p>Carbs: <%= day.meals.breakfast.nutrition.carb %></p>
+                        <p>Fat: <%= day.meals.breakfast.nutrition.fat %></p>
+                    </div>
+                    <div>
+                        <h2>Lunch</h2>
+                        <h3><%= day.meals.lunch.name %></h3>
+                        <img src="<%= day.meals.lunch.image %>" alt="Image of lunch">
+                        <p>For instructions and ingredients <a href="<%= day.meals.lunch.url %>" target="_blank">Click here</a></p>
+                        <p>Calories: <%= day.meals.lunch.nutrition.calorie %></p>
+                        <p>Protein: <%= day.meals.lunch.nutrition.protein %></p>
+                        <p>Carbs: <%= day.meals.lunch.nutrition.carb %></p>
+                        <p>Fat: <%= day.meals.lunch.nutrition.fat %></p>
+                    </div>
+                    <div>
+                        <h2>Dinner</h2>
+                        <h3><%= day.meals.dinner.name %></h3>
+                        <img src="<%= day.meals.dinner.image %>" alt="Image of lunch">
+                        <p>For instructions and ingredients <a href="<%= day.meals.dinner.url %>" target="_blank">Click here</a></p>
+                        <p>Calories: <%= day.meals.dinner.nutrition.calorie %></p>
+                        <p>Protein: <%= day.meals.dinner.nutrition.protein %></p>
+                        <p>Carbs: <%= day.meals.dinner.nutrition.carb %></p>
+                        <p>Fat: <%= day.meals.dinner.nutrition.fat %></p>
+                </div>
+            <% }); %>
+        </div>
+
+
+
+

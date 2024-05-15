@@ -4,6 +4,7 @@ const Post = require('../models/Post');
 const multer = require('multer');
 const path = require('path');
 const User = require('../models/User');
+const { ensureAuthenticated } = require('../auth/isAuthenticated');
 
 
 
@@ -34,16 +35,45 @@ const upload = multer({
 });
 
 
-// Display all posts
-router.get('/', async (req, res) => {
+
+router.get('/', ensureAuthenticated,async (req, res) => {
   try {
     const posts = await Post.find().populate('author');
-    res.render('allPosts', { posts });
+    
+const user =  req.user; 
+    res.render('allPosts', { posts, user });  
   } catch (err) {
     console.error(err);
     res.status(500).send('Error retrieving posts');
   }
 });
+router.post('/interested/:postId', ensureAuthenticated, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const postId = req.params.postId;
+
+    const user = await User.findById(userId);
+
+     const isInterested = user.interestedPosts.includes(postId);
+
+    
+    if (isInterested) {
+      // Remove the post from the interested posts
+      await User.findByIdAndUpdate(userId, { $pull: { interestedPosts: postId } });
+      await User.findByIdAndUpdate(userId, { $inc: { communityPoints: -1 } });
+    } else {
+      // Add the post to the interested posts
+      await User.findByIdAndUpdate(userId, { $push: { interestedPosts: postId } });
+      await User.findByIdAndUpdate(userId, { $inc: { communityPoints: 1 } });
+    } 
+
+    res.redirect('back');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error toggling interest');
+  }
+});
+
 
 router.get('/new', upload.single('image'),(req, res) => {
   res.render('newPost');
@@ -60,12 +90,6 @@ router.post('/new', upload.single('image'), async (req, res) => {
     }
 
     const author = req.user._id; 
-
-
-
-    
-
-
     const newPost = new Post({
       title,
       content,

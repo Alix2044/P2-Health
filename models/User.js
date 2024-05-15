@@ -17,6 +17,19 @@ const UserData = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+     points: {
+         type: Number, default: 0 
+        },
+    
+    communityPoints:{
+         type: Number, default: 0 
+    },
+    interestedPosts: 
+    [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' 
+
+    }
+    ]
+
 });
 
 module.exports = mongoose.model('User',UserData);
