@@ -49,11 +49,15 @@ router.post('/register', validateRegistration, async (req, res) => {
     }
 
     const { name, email, password } = req.body;
+    
 
     try {
         const userFound = await User.findOne({ email });
         if (userFound) {
-            return res.render('register', { errors: [{ msg: 'This email/user exists' }], ...req.body });
+      req.flash('error', 'This email/user already exists...');
+      req.flash('warning', 'Please try another email');
+        return res.render('register', { ...req.body });
+
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
