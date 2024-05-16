@@ -26,7 +26,7 @@
                         <% for(let i = 48; i <= 84; i++) { %>
                         <% let feet = Math.floor(i / 12); %>
                         <% let inches = i % 12; %>
-                        <option value="<%= i %>" <%= (user && user.height == i) ? 'selected' : '' %>><%= feet %>'<%= inches %></option>
+                        <option value="<%= i %>" <%= user?.height == i ? 'selected' : '' %>><%= feet %>'<%= inches %></option>
                         <% } %>
                     </select>
                 </div>
@@ -34,26 +34,26 @@
                 <div class="col-md-6">
                     <label for="gender" class="form-label">Gender</label>
                     <select name="gender" id="gender" class="form-select">
-                        <option value="Male" <%= (user && user.gender) == 'Male' ? 'selected' : '' %>>Male</option>
-                        <option value="Female" <%= (user && user.gender) == 'Female' ? 'selected' : '' %>>Female</option>
+                        <option value="Male" <%= user?.gender == 'Male' ? 'selected' : '' %>>Male</option>
+                        <option value="Female" <%= user?.gender == 'Female' ? 'selected' : '' %>>Female</option>
                     </select>
                 </div>
 
                 <div class="col-md-6">
                     <label for="weight" class="form-label">Weight (lbs)</label>
-                    <input type="number" id="weight" name="weight" class="form-control" min="50" max="700" step="1" value="<%= (user && user.weight) || 150 %>">
+                    <input type="number" id="weight" name="weight" class="form-control" min="50" max="700" step="1" value="<%= user?.weight || 150 %>">
                 </div>
 
                 <div class="col-md-6">
                     <label for="age" class="form-label">Age</label>
-                    <input type="number" id="age" name="age" class="form-control" min="16" max="100" step="1" value="<%= (user && user.age) || 25 %>">
+                    <input type="number" id="age" name="age" class="form-control" min="16" max="100" step="1" value="<%= user?.age || 25 %>">
                 </div>
 
                 <div class="col-12">
                     <label for="activityLevel" class="form-label">Activity level</label>
                     <select name="activityLevel" id="activity-level" class="form-select">
                         <% ['sedentary', 'lightly', 'moderately', 'very', 'extra'].forEach(function(level) { %>
-                        <option value="<%= level %>" <%= (user && user.activityLevel) == level ? 'selected' : '' %>><%= level.charAt(0).toUpperCase() + level.slice(1) %> (description)</option>
+                        <option value="<%= level %>" <%= user?.activityLevel == level ? 'selected' : '' %>><%= level.charAt(0).toUpperCase() + level.slice(1) %> (description)</option>
                         <% }); %>
                     </select>
                 </div>
