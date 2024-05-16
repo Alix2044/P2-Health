@@ -1,0 +1,67 @@
+
+<!-- Include Bootstrap CSS -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Include jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Include Bootstrap JS -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Include Bootstrap Validator JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+<div class="container">
+    <div class="row h-100 justify-content-center align-items-center">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">Personal Information</h2>
+            <form action="/profileSettings/personalInformation?_method=PUT" method="POST" class="row g-3">
+                <div class="col-md-6">
+                    <label for="height" class="form-label">Height</label>
+                    <select name="height" id="height" class="form-select">
+                        <% for(let i = 48; i <= 84; i++) { %>
+                        <% let feet = Math.floor(i / 12); %>
+                        <% let inches = i % 12; %>
+                        <option value="<%= i %>" <%= user.height == i ? 'selected' : '' %>><%= feet %>'<%= inches %></option>
+                        <% } %>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select name="gender" id="gender" class="form-select">
+                        <option value="Male" <%= user.gender == 'Male' ? 'selected' : '' %>>Male</option>
+                        <option value="Female" <%= user.gender == 'Female' ? 'selected' : '' %>>Female</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="weight" class="form-label">Weight (lbs)</label>
+                    <input type="number" id="weight" name="weight" class="form-control" min="50" max="700" step="1" value="<%= user.weight || 150 %>">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="age" class="form-label">Age</label>
+                    <input type="number" id="age" name="age" class="form-control" min="16" max="100" step="1" value="<%= user.age || 25 %>">
+                </div>
+
+                <div class="col-12">
+                    <label for="activityLevel" class="form-label">Activity level</label>
+                    <select name="activityLevel" id="activity-level" class="form-select">
+                        <% ['sedentary', 'lightly', 'moderately', 'very', 'extra'].forEach(function(level) { %>
+                        <option value="<%= level %>" <%= user.activityLevel == level ? 'selected' : '' %>><%= level.charAt(0).toUpperCase() + level.slice(1) %> (description)</option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

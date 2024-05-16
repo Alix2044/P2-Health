@@ -22,12 +22,12 @@ const validateRegistration = [
 
 // GET route for rendering the registration form
 router.get('/register', redirectToDashboardIfAuthenticated, (req, res) => {
-    res.render('register', { messages: req.flash() });
+    res.render('register', { messages: req.flash(), layout: false });
 });
 
 // GET route for rendering the login form
 router.get('/login', redirectToDashboardIfAuthenticated, (req, res) => {
-    res.render('login', { messages: req.flash() });
+    res.render('login', { messages: req.flash(), layout: false });
 });
 
 // POST route for handling u,ser login

@@ -1,4 +1,31 @@
-const cuisines = ["Asian", "American", "British", "Caribbean", "Chinese", "Eastern European", "European",
-"European", " Middle Eastern ", "Nordic", "South East Asia"];
+const cuisines = [
+    "African",
+    "Asian",
+    "American",
+    "British",
+    "Cajun",
+    "Caribbean",
+    "Chinese",
+    "Eastern European",
+    "European",
+    "French",
+    "German",
+    "Greek",
+    "Indian",
+    "Irish",
+    "Italian",
+    "Japanese",
+    "Jewish",
+    "Korean",
+    "Latin American",
+    "Mediterranean",
+    "Mexican",
+    "Middle Eastern",
+    "Nordic",
+    "Southern",
+    "Spanish",
+    "Thai",
+    "Vietnamese"
+];
 
 module.exports = cuisines;

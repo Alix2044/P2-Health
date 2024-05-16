@@ -1,0 +1,142 @@
+
+
+<div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+    <h1 style="text-align: center; width: 100%;">Preferences</h1>
+</div>
+<script>
+function validateMealChoices() {
+    const breakfastType = document.querySelector('[name="breakfastType"]').value;
+    const lunchType = document.querySelector('[name="lunchType"]').value;
+    const dinnerType = document.querySelector('[name="dinnerType"]').value;
+
+    const feedbackElement = document.getElementById('mealTypeFeedback');
+    
+    // Check if all selections are the same and not 'normal'
+    if ((breakfastType != lunchType && lunchType != dinnerType && breakfastType != dinnerType) || 
+        (breakfastType == 'normal' && lunchType == 'normal' && dinnerType == 'normal')) {
+        console.log('Selection valid, enabling submit.');
+        document.querySelector('button[type="submit"]').disabled = false;
+        feedbackElement.style.display = 'none'; // Hide feedback message
+        feedbackElement.textContent = ''; // Clear previous message
+    } else {
+        console.log('Invalid selection, disabling submit.');
+        feedbackElement.textContent = "Selecting all meals as 'light' or 'heavy' is not allowed. Please vary your meal types or choose 'normal'.";
+        feedbackElement.style.display = 'block'; // Show feedback message
+        document.querySelector('button[type="submit"]').disabled = true;
+    }
+}
+</script>
+<div class="container mt-5">
+    <form action="/profileSettings/mealPreferences?_method=PUT" method="POST" id="mealPreferencesForm" class="container mt-5">
+    <% if (messages.error) { %>
+        <% messages.error.forEach(function(error) { %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+        <% }); %>
+    <% } %>
+    <div class="text-center mb-4">
+        <h2>Diets</h2>
+        <div class="row justify-content-center">
+            <% diets.forEach(function(diet, index) { %>
+            <div class="col-auto form-check">
+                <input type="checkbox" id="diet_<%= index %>" name="diets[]" value="<%= diet %>"
+                       class="form-check-input" <%= selectedDiets.includes(diet) ? 'checked' : '' %>>
+                <label for="diet_<%= index %>" class="form-check-label"><%= diet %></label>
+            </div>
+            <% if ((index + 1) % 5 === 0) { %></div><div class="row justify-content-center"><% } %>
+            <% }) %>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <h2>Intolerance</h2>
+        <div class="row justify-content-center">
+            <% intolerance.forEach(function(intolerance, index) { %>
+            <div class="col-auto form-check">
+                <input type="checkbox" id="intolerance_<%= index %>" name="intolerance[]" value="<%= intolerance %>"
+                       class="form-check-input" <%= selectedIntolerance.includes(intolerance) ? 'checked' : '' %>>
+                <label for="intolerance_<%= index %>" class="form-check-label"><%= intolerance %></label>
+            </div>
+            <% if ((index + 1) % 5 === 0) { %></div><div class="row justify-content-center"><% } %>
+            <% }) %>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <h2>Cuisines</h2>
+        <div class="row justify-content-center">
+            <% cuisines.forEach(function(cuisine, index) { %>
+            <div class="col-auto form-check">
+                <input type="checkbox" id="cuisine_<%= index %>" name="cuisines[]" value="<%= cuisine %>"
+                       class="form-check-input" <%= selectedCuisines.includes(cuisine) ? 'checked' : '' %>>
+                <label for="cuisine_<%= index %>" class="form-check-label"><%= cuisine %></label>
+            </div>
+            <% if ((index + 1) % 5 === 0) { %></div><div class="row justify-content-center"><% } %>
+            <% }) %>
+        </div>
+
+    </div>
+        <div class="text-center mb-4">
+            <h2>Ingredients for breakfast</h2>
+            <div class="row justify-content-center">
+                <% breakfastIngredients.forEach(function(ingredient, index) { %>
+                <div class="col-auto form-check">
+                    <input type="checkbox" id="breakfastIngredient_<%= index %>" name="breakfastIngredients[]" value="<%= ingredient  %>"
+                        class="form-check-input"   <%= selectedBreakfastIngredients.includes(ingredient) ? 'checked' : '' %>>
+                    <label for="breakfastIngredient_<%= index %>" class="form-check-label"><%= ingredient %></label>
+                </div>
+                <% if ((index + 1) % 5 === 0) { %></div><div class="row justify-content-center"><% } %>
+                <% }) %>
+        </div>
+    </div>
+
+        </div>
+            <div class="text-center mb-4">
+            <h2>Ingredients for lunch</h2>
+            <div class="row justify-content-center">
+                <% lunchIngredients.forEach(function(ingredient, index) { %>
+                <div class="col-auto form-check">
+                    <input type="checkbox" id="lunchIngredients_<%= index %>" name="lunchIngredients[]" value="<%= ingredient  %>"
+                        class="form-check-input"   <%= selectedLunchIngredients.includes(ingredient) ? 'checked' : '' %>>
+                    <label for="lunchIngredients_<%= index %>" class="form-check-label"><%= ingredient %></label>
+                </div>
+                <% if ((index + 1) % 5 === 0) { %></div><div class="row justify-content-center"><% } %>
+                <% }) %>
+        </div>
+
+        </div>
+            <div class="text-center mb-4">
+            <h2>Ingredients for dinner</h2>
+            <div class="row justify-content-center">
+                <% dinnerIngredients.forEach(function(ingredient, index) { %>
+                <div class="col-auto form-check">
+                    <input type="checkbox" id="dinnerIngredients_<%= index %>" name="dinnerIngredients[]" value="<%= ingredient  %>"
+                            class="form-check-input"   <%= selectedDinnerIngredients.includes(ingredient) ? 'checked' : '' %>>
+                    <label for="dinnerIngredients_<%= index %>" class="form-check-label"><%= ingredient %></label>
+                </div>
+                <% if ((index + 1) % 5 === 0) { %></div><div class="row justify-content-center"><% } %>
+                <% }) %>
+        </div>
+    </div>
+<div class="text-center mb-4" style="width: 50%; margin: 0 auto;">
+    <h2>Meal Types</h2>
+    <% ['breakfast', 'lunch', 'dinner'].forEach(function(meal) { %>
+        <div>
+            <label for="<%= meal %>Type" class="form-label"><%= meal.charAt(0).toUpperCase() + meal.slice(1) %> Type:</label>
+            <select name="<%= meal %>Type" id="<%= meal %>Type" class="form-select centered-select" onchange="validateMealChoices()">
+                <% enums.forEach(function(type) { %>
+                    <option value="<%= type %>" <%= user.mealPreferences[meal] === type ? 'selected' : '' %>><%= type %></option>
+                <% }); %>
+            </select>
+        </div>
+    <% }); %>
+    <div id="mealTypeFeedback" class="alert alert-danger mt-2" style="display: none;"></div>
+</div>
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary" >Save Settings</button>
+    </div>
+</form>
+
+</div>
+

@@ -1,4 +1,11 @@
-const health = ["dairy-free ", "keto", "DASH", "fish-free", "kidney-friendly", "kosher",
-    "paleo", "pork-free", "red-meat-free", "vegan"];
+const diets = [
+    "Gluten Free",
+    "Ketogenic",
+    "Vegetarian",
+    "Lacto-Vegetarian",
+    "Ovo-Vegetarian",
+    "Vegan"
+];
 
-module.exports = health;
+
+module.exports = diets;

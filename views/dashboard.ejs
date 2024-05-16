@@ -9,125 +9,7 @@
         <title>Vital </title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
         <link href="../css/dash.css" rel="stylesheet" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <style> /*Style for achive*/
-    CSS.g-6,
-.gx-6 {
-  --bs-gutter-x: 4.5rem;
-}
-.g-6,
-.gy-6 {
-  --bs-gutter-y: 4.5rem;
-}
-@media (min-width: 576px) {
-  .g-sm-6,
-  .gx-sm-6 {
-    --bs-gutter-x: 4.5rem;
-  }
-  .g-sm-6,
-  .gy-sm-6 {
-    --bs-gutter-y: 4.5rem;
-  }
-}
-@media (min-width: 768px) {
-  .g-md-6,
-  .gx-md-6 {
-    --bs-gutter-x: 4.5rem;
-  }
-  .g-md-6,
-  .gy-md-6 {
-    --bs-gutter-y: 4.5rem;
-  }
-}
-@media (min-width: 992px) {
-  .g-lg-6,
-  .gx-lg-6 {
-    --bs-gutter-x: 4.5rem;
-  }
-  .g-lg-6,
-  .gy-lg-6 {
-    --bs-gutter-y: 4.5rem;
-  }
-}
-@media (min-width: 1200px) {
-  .g-xl-6,
-  .gx-xl-6 {
-    --bs-gutter-x: 4.5rem;
-  }
-  .g-xl-6,
-  .gy-xl-6 {
-    --bs-gutter-y: 4.5rem;
-  }
-}
-@media (min-width: 1400px) {
-  .g-xxl-6,
-  .gx-xxl-6 {
-    --bs-gutter-x: 4.5rem;
-  }
-  .g-xxl-6,
-  .gy-xxl-6 {
-    --bs-gutter-y: 4.5rem;
-  }
-}
-.mb-6 {
-  margin-bottom: 4.5rem !important;
-}
-.py-6 {
-  padding-top: 4.5rem !important;
-  padding-bottom: 4.5rem !important;
-}
-.w-100px {
-  width: 100px !important;
-}
-.h-100px {
-  height: 100px !important;
-}
-@media (min-width: 576px) {
-  .mb-sm-6 {
-    margin-bottom: 4.5rem !important;
-  }
-  .py-sm-6 {
-    padding-top: 4.5rem !important;
-    padding-bottom: 4.5rem !important;
-  }
-}
-@media (min-width: 768px) {
-  .mb-md-6 {
-    margin-bottom: 4.5rem !important;
-  }
-  .py-md-6 {
-    padding-top: 4.5rem !important;
-    padding-bottom: 4.5rem !important;
-  }
-}
-@media (min-width: 992px) {
-  .mb-lg-6 {
-    margin-bottom: 4.5rem !important;
-  }
-  .py-lg-6 {
-    padding-top: 4.5rem !important;
-    padding-bottom: 4.5rem !important;
-  }
-}
-@media (min-width: 1200px) {
-  .mb-xl-6 {
-    margin-bottom: 4.5rem !important;
-  }
-  .py-xl-6 {
-    padding-top: 4.5rem !important;
-    padding-bottom: 4.5rem !important;
-  }
-}
-@media (min-width: 1400px) {
-  .mb-xxl-6 {
-    margin-bottom: 4.5rem !important;
-  }
-  .py-xxl-6 {
-    padding-top: 4.5rem !important;
-    padding-bottom: 4.5rem !important;
-  }
-}</style>
     </head>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
@@ -173,10 +55,6 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                Create Post
                             </a>
-                              <a class="nav-link" href="/challenges">
-                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                               Challenges
-                            </a>
                             <div class="sb-sidenav-menu-heading">Interface</div>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
                                 <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
@@ -189,6 +67,7 @@
                                     <a class="nav-link" href="layout-sidenav-light.html">Meal Plan</a>
                                 </nav>
                             </div>
+                           
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
                                 <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
                                 Pages
@@ -237,97 +116,107 @@
                     </div>
                 </nav>
             </div>
-            
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4">WELCOME USER!</h1>
-                        <div class="container overflow-hidden">
-                            <!--these achiements should be adjusted to the top right corner below the search bar -A -->
-    <div class="row gy-5 gy-md-6 gy-lg-0">
-      <div class="col-6 col-lg-3">
-        <div class="text-center">
-          <div class="d-flex align-items-center justify-content-center bg-primary rounded-circle w-100px h-100px mb-3 mx-auto">
-          <i class="fas fa-users fa-3x text-white"></i>
-          </div>
-          <h5 class="display-6 fw-bold m-1"><%= userComPoints %></h5>
-          <p class="text-secondary m-0">Community engagements</p>
-        </div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="text-center">
-          <div class="d-flex align-items-center justify-content-center bg-primary rounded-circle w-100px h-100px mb-3 mx-auto">
-            <i class="fas fa-coins fa-3x text-white"></i>
-          </div>
-          <h5 class="display-6 fw-bold m-1"><%= userPoints %></h5>
-          <p class="text-secondary m-0">Points</p>
-        </div>
-      </div>
-      </div>
-  </div>
-                        
+                        <ol class="breadcrumb mb-4">
+                            <li class="breadcrumb-item active">MEAL PLAN</li>
+                        </ol>
                         <div class="row">
                             <div class="col-xl-3 col-md-6">
-                                <div class="card bg-primary text-white mb-4">
-                                    <div class="card-body">Breakfast</div>
+                                <div class="card bg-matte-green text-white mb-4">
+                                    <div class="card-body">Calorie intake
+                                        <div id="caloriesChart" style="height: 200px;"></div> <!-- Adjust height as needed -->
+                                    </div>
                                     <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="#">View Details</a>
-                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-md-6">
-                                <div class="card bg-warning text-white mb-4">
-                                    <div class="card-body">Lunch</div>
+                                <div class="card bg-matte-lightergreen text-white mb-4">
+                                    <div class="card-body">Protein intake
+                                        <div id="proteinChart" style="height: 200px;"></div> <!-- Adjust height as needed -->
+                                    </div>
                                     <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="#">View Details</a>
-                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-md-6">
-                                <div class="card bg-success text-white mb-4">
-                                    <div class="card-body">Dinner</div>
+                                <div class="card bg-matte-yellowts text-white mb-4">
+                                    <div class="card-body">Fat intake
+                                        <div id="fatsChart" style="height: 200px;"></div> <!-- Adjust height as needed -->
+                                    </div>
                                     <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="#">View Details</a>
-                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-md-6">
-                                <div class="card bg-danger text-white mb-4">
-                                    <div class="card-body">Snacks</div>
+                                <div class="card bg-matte-orangets text-white mb-4">
+                                    <div class="card-body">Carbs intake
+                                        <div id="carbsChart" style="height: 200px;"></div> <!-- Adjust height as needed -->
+                                    </div>
                                     <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="#">View Details</a>
-                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xl-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-area me-1"></i>
-                                        Area Chart Example
+                            <% if (locals.messages && messages.error) { %>
+                                <% messages.error.forEach(function(message) { %>
+                                    <div class="alert alert-danger" role="alert">
+                                        <%= message %>
                                     </div>
-                                    <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
-                                </div>
-                            </div>
-                            <div class="col-xl-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-bar me-1"></i>
-                                        Bar Chart Example
+                                <% }); %>
+                            <% } %>
+                            <div class="card-group">
+                                <div class="card">
+                                    <img src="<%= meals.breakfast.image %>" class="card-img-top"  alt="Image of breakfast">
+                                    <div class="card-body">
+                                    <h5 class="card-title">Breakfast</h5>
+                                    <input type="checkbox" 
+                                        id="breakfast" 
+                                        name="breakfast" 
+                                        data-nutrition='<%- JSON.stringify(meals.breakfast.nutrition) %>' 
+                                        onchange="updateMeal('breakfast')"
+                                        <%= meals.breakfast.isChecked ? 'checked' : '' %>>
+                                    <label for="breakfast"><%= meals.breakfast.name %></label>
                                     </div>
-                                    <div class="card-body"><canvas id="myBarChart" width="100%" height="40"></canvas></div>
+                                    <div class="card-footer">
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-table me-1"></i>
-                               
+                               <div class="card">
+                                    <img src="<%= meals.lunch.image %>" class="card-img-top"  alt="Image of lunch">
+                                    <div class="card-body">
+                                    <h5 class="card-title">Lunch</h5>
+                                    <input type="checkbox" 
+                                        id="lunch" 
+                                        name="lunch" 
+                                        data-nutrition='<%- JSON.stringify(meals.lunch.nutrition) %>' 
+                                        onchange="updateMeal('lunch')"
+                                        <%= meals.breakfast.isChecked ? 'checked' : '' %>>
+                                    <label for="lunch"><%= meals.lunch.name %></label>
+                                    </div>
+                                    <div class="card-footer">
+                                    </div>
+                                </div>
+                               <div class="card">
+                                    <img src="<%= meals.dinner.image %>" class="card-img-top"  alt="Image of dinner">
+                                    <div class="card-body">
+                                    <h5 class="card-title">Dinner</h5>
+                                    <input type="checkbox" 
+                                        id="dinner" 
+                                        name="dinner" 
+                                        data-nutrition='<%- JSON.stringify(meals.dinner.nutrition) %>' 
+                                        onchange="updateMeal('dinner')"
+                                        <%= meals.breakfast.isChecked ? 'checked' : '' %>>
+                                    <label for="dinner"><%= meals.dinner.name %></label>
+                                    </div>
+                                    <div class="card-footer">
+                                    </div>
+                                </div>
+                                </div>
                         </div>
                     </div>
             
@@ -378,7 +267,6 @@
                 </footer>
             </div>
         </div>
-
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="js/scripts.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
@@ -386,5 +274,3 @@
         <script src="assets/demo/chart-bar-demo.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="js/datatables-simple-demo.js"></script>
-    </body>
-</html>

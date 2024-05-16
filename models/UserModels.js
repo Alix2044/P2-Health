@@ -1,65 +1,31 @@
-const moongose = require('mongooese');
+const mongoose = require('mongoose');
 
-const userSchema = new mongose.Schema({
-  createdBy: {
-        type: Schema.Types.ObjectId, 
-        ref: 'User'
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    },
- age: {
-        type: Number,
-       required: true,
-        min: 0
-    },
- height: {
-  type: Number,
-  required: true,
-     min: 0
-},
-  gender: {
-        type: String,
-        enum: ['Male', 'Female', 'Other']
-    },
-  
-  weight: {
-  type: Number,
-  required: true,
-      min: 0
-},
-  dailyActive: {
-  type: String,
-    enum: ['Sedentary', 'Lightly active', 'Moderately active', 'Very active', 'Extremely active'],
-  required: true
-},
-  dietPattern: {
-  type: String,
-  required: true,
-     enum: ['Vegan', 'Vegetarian', 'Meat-eater']
-},
-    foodSensitivityOrAllergies: {
-        type: [String] // Hvis der kan være flere allergier eller følsomheder
-    },
-    preferredPhysicalActivities: {
-        type: [String] // Hvis der kan være flere foretrukne aktiviteter
-    },
-    preferredFoods: {
-        type: [String] // Hvis der kan være flere foretrukne fødevarer
-    },
-      location: {
-        type: {
-            type: String,
-            required: true
-        },
-    }
-  
+const userModel = new mongoose.Schema({
+  userId: { type:mongoose.Schema.Types.ObjectId, ref: 'User' },
+      calories: { type: Number },
+      height: { type: Number },
+      weight: { type: Number },
+      age: { type: Number },
+      gender: { type: String },
+      BMR: { type: Number },
+      BMI: { type: Number },
+      activityLevel: {type: String},
+      mealPreferences: {
+        breakfast: { type: String, enum: ['light', 'normal', 'heavy'], default: 'normal' },
+        lunch: { type: String, enum: ['light', 'normal', 'heavy'], default: 'normal' },
+        dinner: { type: String, enum: ['light', 'normal', 'heavy'], default: 'normal' }
+      },
+      fat: { min: Number, max: Number },
+      protein: { min: Number, max: Number },
+      carbohydrates: { min: Number, max: Number },
+      cuisines: [{ type: String }],
+      diets: [{ type: String }],
+      intolerance:[{ type: String }],
+      intolerances: [{ type: String }],
+      breakfastIngredients: [{ type: String }],
+      lunchIngredients: [{ type: String }],
+      dinnerIngredients: [{ type: String }],
 
 });
 
-module.exports =  mongoose.model('user',userSchema);
+module.exports =  mongoose.model('UserModel',userModel);

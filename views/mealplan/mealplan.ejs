@@ -1,41 +1,78 @@
-<h1>Weekly Meal Plans</h1>
-        <div>
-            <h2>Plan for week starting on <%= new Date(meals.startDate).toDateString() %></h2>
-            <% meals.dailyPlans.forEach(function(day) { %>
-                <div>
-                    <h3>Meals for <%= new Date(day.date).toDateString() %>:</h3>
-                    <div>
-                        <h2>Breakfast</h2>
-                        <h3><%= day.meals.breakfast.name %></h3>
-                        <img src="<%= day.meals.breakfast.image %>" alt="Image of breakfast">
-                        <p>For instructions and ingredients <a href="<%= day.meals.breakfast.url %>" target="_blank">Click here</a></p>
-                        <p>Calories: <%= day.meals.breakfast.nutrition.calorie %></p>
-                        <p>Protein: <%= day.meals.breakfast.nutrition.protein %></p>
-                        <p>Carbs: <%= day.meals.breakfast.nutrition.carb %></p>
-                        <p>Fat: <%= day.meals.breakfast.nutrition.fat %></p>
-                    </div>
-                    <div>
-                        <h2>Lunch</h2>
-                        <h3><%= day.meals.lunch.name %></h3>
-                        <img src="<%= day.meals.lunch.image %>" alt="Image of lunch">
-                        <p>For instructions and ingredients <a href="<%= day.meals.lunch.url %>" target="_blank">Click here</a></p>
-                        <p>Calories: <%= day.meals.lunch.nutrition.calorie %></p>
-                        <p>Protein: <%= day.meals.lunch.nutrition.protein %></p>
-                        <p>Carbs: <%= day.meals.lunch.nutrition.carb %></p>
-                        <p>Fat: <%= day.meals.lunch.nutrition.fat %></p>
-                    </div>
-                    <div>
-                        <h2>Dinner</h2>
-                        <h3><%= day.meals.dinner.name %></h3>
-                        <img src="<%= day.meals.dinner.image %>" alt="Image of lunch">
-                        <p>For instructions and ingredients <a href="<%= day.meals.dinner.url %>" target="_blank">Click here</a></p>
-                        <p>Calories: <%= day.meals.dinner.nutrition.calorie %></p>
-                        <p>Protein: <%= day.meals.dinner.nutrition.protein %></p>
-                        <p>Carbs: <%= day.meals.dinner.nutrition.carb %></p>
-                        <p>Fat: <%= day.meals.dinner.nutrition.fat %></p>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // Ensure there are no time zone offsets causing issues
+        var currentDateString = currentDate.toISOString().slice(0, 10);
+
+        console.log("Looking for div with ID: day-" + currentDateString); // Debugging output
+
+        var todayDiv = document.getElementById('day-' + currentDateString);
+        if (todayDiv) {
+            console.log("Found today's div, applying styles."); // Confirm that the div was found
+            todayDiv.style.backgroundColor = 'black';
+        } else {
+            console.log("No div found for today's date."); // Indicate if no div was found
+        }
+
+        // Retrieve all card elements within this div and change their background color
+            var cards = todayDiv.getElementsByClassName('card');
+            for (var i = 0; i < cards.length; i++) {
+                cards[i].style.backgroundColor = '#f7f7f7'; // A lighter shade of grey for the cards
+            }
+        });
+</script>
+<h1 style="text-align: center; font-family: Arial, sans-serif;">Weekly Meal Plans</h1>
+<h2 style="text-align: center; font-family: Arial, sans-serif;">Plan for this week starting on <%= new Date(meals.startDate).toDateString() %></h2>
+    <div style="width: 80%; margin: 0 auto; padding: 20px;">
+    <% meals.dailyPlans.forEach(function(day) { %>
+        <h3 style="text-align: center; font-family: Arial, sans-serif;">Meals for <%= new Date(day.date).toDateString() %>:</h3>
+         <div class="card-group" id="day-<%= new Date(day.date).toISOString().slice(0,10) %>">
+            <div class="card">
+                <img src="<%= day.meals.breakfast.image %>" class="card-img-top" alt="Image of breakfast">
+                <div class="card-body">
+                    <h5 class="card-title"><%= day.meals.breakfast.name %></h5>
+                    <p class="card-text">For instructions and ingredients <a href="<%= day.meals.breakfast.url %>" target="_blank">Click here</a></p>
+                    <p class="card-text">Calories: <%= day.meals.breakfast.nutrition.calorie %></p>
+                    <p class="card-text">Protein: <%= day.meals.breakfast.nutrition.protein %></p>
+                    <p class="card-text">Carbs: <%= day.meals.breakfast.nutrition.carb %></p>
+                    <p class="card-text">Fat: <%= day.meals.breakfast.nutrition.fat %></p>
                 </div>
-            <% }); %>
+                <div class="card-footer">
+                </div>
+            </div>
+            <div class="card">
+                <img src="<%= day.meals.lunch.image %>" class="card-img-top" alt="Image of lunch">
+                <div class="card-body">
+                    <h5 class="card-title"><%= day.meals.lunch.name %></h5>
+                    <p class="card-text">For instructions and ingredients <a href="<%= day.meals.lunch.url %>" target="_blank">Click here</a></p>
+                    <p class="card-text">Calories: <%= day.meals.lunch.nutrition.calorie %></p>
+                    <p class="card-text">Protein: <%= day.meals.lunch.nutrition.protein %></p>
+                    <p class="card-text">Carbs: <%= day.meals.lunch.nutrition.carb %></p>
+                    <p class="card-text">Fat: <%= day.meals.lunch.nutrition.fat %></p>
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+            <div class="card">
+                <img src="<%= day.meals.dinner.image %>" class="card-img-top" alt="Image of dinner">
+                <div class="card-body">
+                    <h5 class="card-title"><%= day.meals.dinner.name %></h5>
+                    <p class="card-text">For instructions and ingredients <a href="<%= day.meals.dinner.url %>" target="_blank">Click here</a></p>
+                    <p class="card-text">Calories: <%= day.meals.dinner.nutrition.calorie %></p>
+                    <p class="card-text">Protein: <%= day.meals.dinner.nutrition.protein %></p>
+                    <p class="card-text">Carbs: <%= day.meals.dinner.nutrition.carb %></p>
+                    <p class="card-text">Fat: <%= day.meals.dinner.nutrition.fat %></p>
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
         </div>
+    <% }); %>
+</div>
+
+
 
 
 

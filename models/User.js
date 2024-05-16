@@ -13,6 +13,12 @@ const UserData = new mongoose.Schema({
         type: String,
         required: true
     },
+    bmrCompleted: { 
+        type: Boolean, 
+        default: false },
+    questionnaireCompleted: { 
+        type: Boolean, 
+        default: false },
     dateTime:{
         type: Date,
         default: Date.now
