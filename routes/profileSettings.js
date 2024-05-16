@@ -42,13 +42,13 @@ router.get('/personalInformation',ensureAuthenticated,async (req, res)=>{
 
     const userId = req.user._id;
     const user = await User.findById(userId);
-    const userModel=await UserModels.findById(userId);
+    const UserModel=await UserModels.findById(userId);
 
     if (!user) {
         return res.status(404).send('User not found');
     }
 
-    res.render('personalInformation' , {user: userModel});
+    res.render('personalInformation' , {user: UserModel});
 });
 
 function calculateBMI(weight, height) {
