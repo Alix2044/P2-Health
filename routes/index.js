@@ -7,6 +7,10 @@ const UserModel=require('../models/UserModels');
 
 const router = express.Router();
 
+router.get('/', redirectToDashboardIfAuthenticated,(req,res)=>{
+    res.render('index', { layout:false })
+})
+
 // Render the dashboard view when user navigates to /dashboard
 router.get('/dashboard', ensureAuthenticated, async (req, res) => {
     try {
@@ -241,9 +245,7 @@ router.put('/update-meal/:mealType', ensureAuthenticated, async (req, res) => {
 
 
 
-router.get('/', redirectToDashboardIfAuthenticated,(req,res)=>{
-    res.render('index', { layout:false })
-})
+
 
 
 
