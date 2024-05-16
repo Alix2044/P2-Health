@@ -28,6 +28,7 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
         const user = await User.findById(userId);
         const userModel = await UserModel.findById(userId);
         const name = user.fullName;
+        
 
         if (!user) {
             return res.status(404).send('User not found');
@@ -74,7 +75,8 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
                 name: name,
                 users: users,
                 userPoints: userPoints,
-                userComPoints: userComPoints
+                userComPoints: userComPoints,
+                
             });
         }
     } catch (err) {

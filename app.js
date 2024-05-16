@@ -22,7 +22,7 @@ dotenv.config({ path: './config/config.env' })
 
 // EJS - looking for views/layout.ejs
 app.use(expressLayouts)
-//app.set('layout', 'layouts/main.ejs');
+app.set('layout', 'layouts/main.ejs');
 app.set("view engine", "ejs")
 
 
