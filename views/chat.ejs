@@ -1,48 +1,132 @@
-<head>
-   <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-      
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
 
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger Style Chat</title>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+Udvid
+challenges.txt
+3 KB
+﻿
+MoMo Alian
+momoalian
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger Style Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: scroll;
+            height: calc(100vh - 60px);
+            background-color: #a7eba1;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #messages li {
+            padding: 16px 32px;
+            margin-bottom: 8px;
+            max-width: 150%;
+            word-wrap: break-word;
+            border-radius: 12px;
+            clear: both;
+        }
+
+        #messages .mine {
+            background-color: #187c2c; /* Your message color */
+            color: #fff;
+            width: 150px;
+            font-size: large;
+            font-family: Rubik, sans-serif;
+            float: right; /* Align to the right */
+        }
+
+        #messages .theirs {
+            background-color: #ddd; /* Their message color */
+            color: #333;
+            float: left; /* Align to the left */
+        }
+
+        #form {
+            display: flex;
+            padding: 10px;
+            background-color: #12372A;
+            border-top: 1px solid #12372A;
+        }
+
+        #input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+
+        #form button {
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        #form button:hover {
+            background-color: #a18939;
+        }
     </style>
 </head>
 <body>
     <ul id="messages"></ul>
     <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
+        <input id="input" autocomplete="off" /><button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      const socket = io();
+        const socket = io();
 
-      const form = document.getElementById('form');
-      const input = document.getElementById('input');
-      const messages = document.getElementById('messages');
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
 
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const msg = input.value.trim();
-        if (msg) {
-          const roomId = '<%= roomId %>'; // Get roomId from EJS template
-          socket.emit('chatMessage', { roomId, msg });
-          input.value = '';
-        }
-      });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const msg = input.value.trim();
+            if (msg) {
+                const roomId = '<%= roomId %>'; // Get roomId from EJS template
+                socket.emit('chatMessage', { roomId, msg });
+                input.value = '';
+            }
+        });
 
-      socket.on('message', (msg) => {
-        const item = document.createElement('li');
-        item.textContent = msg;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
+        socket.on('message', (msg) => {
+            const item = document.createElement('li');
+            item.textContent = msg;
+            item.classList.add('mine'); // Assume all messages are from the user
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
 
-      // Join the room on connection
-      socket.emit('joinRoom', '<%= roomId %>');
+        // Join the room on connection
+        socket.emit('joinRoom', '<%= roomId %>');
     </script>
-  </body>
+</body>
+</html>
