@@ -65,7 +65,7 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
 
             res.render('dashboard', {
                 date: formatDate(today),
-                calories: Model.calories,
+                calories: userModel.calories,
                 protein: userModel.protein.min,
                 carbs: userModel.carbohydrates.min,
                 fat: userModel.fat.min,

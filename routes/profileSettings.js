@@ -23,7 +23,7 @@ const getActivityFactor = require('../helpers/activitylevel');
 const intolerances = require('../helpers/intolerances');
 const UserModels = require('../models/UserModels');
 const BASE_URL = 'https://api.spoonacular.com/recipes/complexSearch?';
-const API_KEY=process.env.API_KEY_SPOONACULAR2;
+const API_KEY=process.env.API_KEY_SPOONACULAR;
 
 /**
  * GET /
