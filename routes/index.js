@@ -242,7 +242,7 @@ router.put('/update-meal/:mealType', ensureAuthenticated, async (req, res) => {
 
 
 router.get('/', redirectToDashboardIfAuthenticated,(req,res)=>{
-    res.render('index', { layout: false })
+    res.render('index', { layout:false })
 })
 
 
