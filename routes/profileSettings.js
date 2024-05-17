@@ -55,6 +55,8 @@ function calculateBMI(weight, height) {
     return (weight / (Math.pow((height / 100), 2))).toFixed(2);
 }
 
+
+
 function calculateBMR( height, weight, age, gender, activityLevel ) {
     const factor = getActivityFactor(activityLevel);
     const genderFactor = gender.toLowerCase() === "male" ? 5 : -161;
@@ -559,4 +561,9 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
-module.exports=router;
+module.exports= {
+    router,
+    calculateBMI,
+    calculateBMR,
+    calculateMacros
+}
