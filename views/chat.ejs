@@ -1,22 +1,3 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messenger Style Chat</title>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-Udvid
-challenges.txt
-3 KB
-﻿
-MoMo Alian
-momoalian
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,20 +6,31 @@ momoalian
     <title>Messenger Style Chat</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #000000;
+            font-family: Rubik;
+            width: 90vw;
             margin: 0;
             padding: 0;
+            background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
+            margin-left: 120px;
         }
 
         #messages {
+            
             list-style-type: none;
             padding: 0;
             margin: 0;
             overflow-y: scroll;
-            height: calc(100vh - 60px);
+            height: 74vh;
             background-color: #a7eba1;
             border-bottom: 1px solid #ddd;
+            box-sizing: border-box;
+            width: 100%;
+            padding: 0px;
+            margin-top: 30px;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            scrollbar-color:#a7eba1 #94e38c
+            
         }
 
         #messages li {
@@ -56,37 +48,50 @@ momoalian
             width: 150px;
             font-size: large;
             font-family: Rubik, sans-serif;
-            float: right; /* Align to the right */
+            float: right;
+            margin: 10px; /* Align to the right */
+
         }
 
         #messages .theirs {
             background-color: #ddd; /* Their message color */
             color: #333;
-            float: left; /* Align to the left */
+            float: left;
+            margin: 10px; /* Align to the left */
         }
 
         #form {
             display: flex;
-            padding: 10px;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            padding: 13px;
             background-color: #12372A;
             border-top: 1px solid #12372A;
+            
         }
 
         #input {
             flex: 1;
-            padding: 10px;
+            padding: 13px;
             border: none;
             border-radius: 20px;
             margin-right: 10px;
         }
 
         #form button {
-            background-color: #4caf50;
+            background-color: #FFCE89;
             color: #fff;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 30px;
             border-radius: 20px;
             cursor: pointer;
+            margin-left: 5px;
+        }
+
+        #textbox{
+            display: flex;
+            justify-content: flex-end;
+            flex-grow: 4;
         }
 
         #form button:hover {
@@ -95,14 +100,18 @@ momoalian
     </style>
 </head>
 <body>
+    
     <ul id="messages"></ul>
-    <form id="form" action="">
-        <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
+    
+    <div class="textbox">
+    
+        <form id="form" action="">
+        <input id="input" autocomplete="off" placeholder="Chat as <%= user%>"/><button>Send</button>
+        </form>
+    </div>
 
+    <script src="/socket.io/socket.io.js"></script>
+   <script>
         const form = document.getElementById('form');
         const input = document.getElementById('input');
         const messages = document.getElementById('messages');
@@ -111,22 +120,26 @@ momoalian
             e.preventDefault();
             const msg = input.value.trim();
             if (msg) {
-                const roomId = '<%= roomId %>'; // Get roomId from EJS template
-                socket.emit('chatMessage', { roomId, msg });
+                const senderName = '<%= user %>'; 
+                   const roomId = '<%= roomId %>';; 
+                const data = { senderName, msg };
+                console.log(data); 
+                displayMessage(data); 
                 input.value = '';
             }
         });
 
-        socket.on('message', (msg) => {
+        // Simulate receiving a message
+        function displayMessage(data) {
+            const { senderName, msg } = data;
             const item = document.createElement('li');
-            item.textContent = msg;
-            item.classList.add('mine'); // Assume all messages are from the user
+            item.textContent = `${msg}`;
+            item.classList.add('mine');
             messages.appendChild(item);
+            
             window.scrollTo(0, document.body.scrollHeight);
-        });
-
-        // Join the room on connection
-        socket.emit('joinRoom', '<%= roomId %>');
+        }
     </script>
+
 </body>
 </html>

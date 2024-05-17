@@ -6,7 +6,9 @@ const router = express.Router();
 router.get('/:roomId', (req, res) => {
   const roomId = req.params.roomId;
   // Render the chat interface for the specified room ID
-  res.render('chat', { roomId });
+  const currentUserName = req.user.fullName;
+  
+  res.render('chat', { roomId, user:currentUserName});
 });
 
 module.exports = router;
