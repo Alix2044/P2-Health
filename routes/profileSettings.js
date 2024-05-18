@@ -176,20 +176,23 @@ const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, 
     }
 };
 
-const findRecipeById = async (id) => {
+const findRecipeByIdBulk = async (ids) => {
     const params = {
-            apiKey: API_KEY,
-            includeNutrition: true,
-        };
+        apiKey: API_KEY,
+        ids: ids.join(','),  // Convert the array of IDs to a comma-separated string
+        includeNutrition: true,
+    };
 
     try {
-        const response = await axios.get(`https://api.spoonacular.com/recipes/${id}/information`, { params });
-        const recipe = response.data;
-        if (!recipe) {
+        const response = await axios.get(`https://api.spoonacular.com/recipes/informationBulk`, { params });
+        const recipes = response.data;
+
+        if (!recipes || recipes.length === 0) {
             console.log("No results returned from API.");
-            return null;
+            return [];
         }
-        return {
+
+        return recipes.map(recipe => ({
             id: recipe.id,
             name: recipe.title,
             image: recipe.image,
@@ -200,12 +203,11 @@ const findRecipeById = async (id) => {
                 carb: recipe.nutrition?.nutrients.find(n => n.name === "Carbohydrates")?.amount || 0,
                 fat: recipe.nutrition?.nutrients.find(n => n.name === "Fat")?.amount || 0
             }
-        };
+        }));
     } catch (error) {
-        console.error(`Error fetching ${id}:`, error);
+        console.error(`Error fetching recipes for IDs ${ids.join(', ')}:`, error);
         return [];
     }
-
 };
 
 const calculateMealCalories = (dailyCalories, mealPreference) => {
@@ -218,6 +220,26 @@ const calculateMealCalories = (dailyCalories, mealPreference) => {
     return {
         calories: dailyCalories * factors,
     };
+};
+
+const createFinalMealPlan = (sortedMealPlans) => {
+    const finalMealPlan = [];
+    const mealTypes = ['breakfast', 'lunch', 'dinner'];
+    let index = 0;
+    console.log("KKKK" + JSON.stringify(sortedMealPlans, null, 2));
+
+    while (finalMealPlan.length < 7) {
+        const mealPlan = {};
+        for (const mealType of mealTypes) {
+            const sortedList = sortedMealPlans[mealType];
+            const elementIndex = index % sortedList.length;
+            mealPlan[`${mealType}Id`] = sortedList[elementIndex].id;
+        }
+        finalMealPlan.push(mealPlan);
+        index++;
+    }
+
+    return finalMealPlan;
 };
 
 async function createMealplan(userId, user){
@@ -243,25 +265,19 @@ async function createMealplan(userId, user){
         startDate: today,
         dailyPlans: []
     });
+    // Define an object to store sorted lists for each meal type
+    const sortedMealPlans = {
+        breakfast: [],
+        lunch: [],
+        dinner: []
+    };
 
-    // Loop over the next 7 days, including today
-    for (let i = 0; i < 7; i++) {
-        let dayDate = new Date(today);
-        dayDate.setDate(today.getDate() + i); // Increment the date by i days
 
-        const dayPlan = {
-            date: dayDate,
-            meals: { breakfast: null, lunch: null, dinner: null },
-            calorie: 0,
-            protein: 0,
-            carb: 0,
-            fat: 0
-        };
-
+    try{
         // Populate each meal type into the day plan
         for (const mealType of ['breakfast', 'lunch', 'dinner']) {
             const mealPreferences = user.mealPreferences[mealType];
-            const mealCalories = calculateMealCalories(user.calories, user.fat, user.carbohydrates, user.protein, mealPreferences);
+            const mealCalories = calculateMealCalories(user.calories,mealPreferences);
             console.log(mealType);
             const ingredients = user[`${mealType}Ingredients`];
             const diets= user.diets;
@@ -281,17 +297,65 @@ async function createMealplan(userId, user){
             const cosineSimilaritys = cosineSimilarity(magnitudes, dotProducts, recipes);
             console.log(cosineSimilaritys);
 
-            const meal = await findRecipeById(cosineSimilaritys); // Assume this finds the recipe based on ID
-            console.log(meal);
+            //const cosineResultsList = await findRecipeById(cosineSimilaritys); // Assume this finds the recipe based on ID
+            if (recipes.length>7){
+                sortedList=sorting(cosineSimilaritys, recipes, recipes.length)
+            }else{
+                sortedList=sorting(cosineSimilaritys, recipes);
+            }
+
+            sortedMealPlans[mealType] = sortedList;
+        }
+    }catch (error){
+        console.error("Error recipes: ", error);
+        req.flash('error', 'Error getting the recipes. Please try again.');
+        res.redirect('/profileSettings/mealPreferences');
+
+    }
+
+    //search the recipes 
+    const finalMealPlanId=createFinalMealPlan(sortedMealPlans);
+    let i=0;
+    for (const mealPlans of finalMealPlanId) {
+        let dayDate = new Date(today);
+        dayDate.setDate(today.getDate() + i); // Increment the date by i days
+
+        const dayPlan = {
+            date: dayDate,
+            meals: { breakfast: null, lunch: null, dinner: null },
+            calorie: 0,
+            protein: 0,
+            carb: 0,
+            fat: 0
+        };
+        const ids = [mealPlans.breakfastId, mealPlans.lunchId, mealPlans.dinnerId];
+        const recipes = await findRecipeByIdBulk(ids);
+        console.log(`Recipes for IDs ${ids.join(', ')}:`, recipes);
+
+        // Map recipes to their corresponding meal types
+        recipes.forEach(recipe => {
+            if (recipe.id === mealPlans.breakfastId) {
+                dayPlan.meals.breakfast = recipe;
+            } else if (recipe.id === mealPlans.lunchId) {
+                dayPlan.meals.lunch = recipe;
+            } else if (recipe.id === mealPlans.dinnerId) {
+                dayPlan.meals.dinner = recipe;
+            }
+        });
+
+        // Check and log if any meal type has no data retrieved
+        for (const mealType of ['breakfast', 'lunch', 'dinner']) {
+            const meal = dayPlan.meals[mealType];
             if (meal) {
-                dayPlan.meals[mealType] = meal;
+                console.log(`Meal data retrieved for ${mealType}:`, meal);
             } else {
                 console.log(`No meal data retrieved for ${mealType}`);
             }
         }
-
         // Add the new day plan to the meal plan's daily plans array
+        console.log('Adding day plan:', dayPlan);
         mealPlan.dailyPlans.push(dayPlan);
+        i++;
     }
 
     // Attempt to save the new meal plan
@@ -540,20 +604,33 @@ function cosineSimilarity(magnitudes, dotProducts, myRecipes) {
 
     let cosValue = 0;
 
-    for (let m = 0; m < dotProducts.length; m++) {
-        cosValue = ((dotProducts[m] / magnitudes[m]) + 1) / 2
-
-        cosine_results.push(cosValue)
+    for (let i = 0; i < dotProducts.length; i++) {
+        cosValue = ((dotProducts[i] / magnitudes[i]) + 1) / 2
+        if (cosValue>0){
+            cosine_results.push({ index: i, score: cosValue });
+        }
     }
 
-    let maxIndex = cosine_results.indexOf(Math.max(...cosine_results)); 
-    console.log(maxIndex);
+    //let maxIndex = cosine_results.indexOf(Math.max(...cosine_results)); 
+   //console.log(maxIndex);
 
-    let mostSimilarRecipe = myRecipes[maxIndex].id;
+    //let mostSimilarRecipe = myRecipes[maxIndex].id;
 
-    return mostSimilarRecipe;
+    return cosine_results;
 
 }
+
+
+function sorting(cosineResults, myRecipes, topN = 7) {
+    cosineResults.sort((a, b) => b.score - a.score);
+    console.log("Sorted Cosine Results: " + JSON.stringify(cosineResults, null, 2));
+    return cosineResults.slice(0, topN).map(x => ({
+        id: myRecipes[x.index].id,
+        score: x.score
+    }));
+}
+
+
 function capitalizeFirstLetter(string) {
     if (!string) return string; // Handle null, undefined, etc
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
