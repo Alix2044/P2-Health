@@ -142,6 +142,7 @@ const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, 
             includeIngredients: ingredients.join(","),
             type: mealType,
             addRecipeNutrition: true,
+            number: 100, 
             minCalories: Math.ceil(mealCalories.calories * 0.9),
             maxCalories: Math.ceil(mealCalories.calories * 1.1),
             sort: "max-used-ingredients",
@@ -162,13 +163,14 @@ const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, 
             console.log("No results returned from API.");
             return null;
         }
-        const myRecipes = meals.slice(0, 10).map(recipe => {
-        const listOfIngredients = recipe.nutrition.ingredients.map(ingredient => ingredient.name);
-        return {
-            id: recipe.id,
-            listOfIngredients: listOfIngredients
-        };
-    });
+        const myRecipes = meals.map(recipe => {
+            const listOfIngredients = recipe.nutrition.ingredients.map(ingredient => ingredient.name);
+            return {
+                id: recipe.id,
+                listOfIngredients: listOfIngredients
+            };
+        });
+        console.log("MMMM" + " "+ myRecipes);
         return myRecipes;
     } catch (error) {
         console.error(`Error fetching ${mealType}:`, error);
@@ -195,7 +197,7 @@ const findRecipeByIdBulk = async (ids) => {
         return recipes.map(recipe => ({
             id: recipe.id,
             name: recipe.title,
-            image: recipe.image,
+            image: recipe.image || "https://media.istockphoto.com/id/1055079680/vector/black-linear-photo-camera-like-no-image-available.jpg?s=612x612&w=0&k=20&c=P1DebpeMIAtXj_ZbVsKVvg-duuL0v9DlrOZUvPG6UJk=",
             url: recipe.sourceUrl,
             nutrition: {
                 calorie: recipe.nutrition?.nutrients.find(n => n.name === "Calories")?.amount || 0,
