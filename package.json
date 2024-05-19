@@ -32,6 +32,7 @@
     "socket.io": "^4.7.5"
   },
   "devDependencies": {
+    "axios-mock-adapter": "^1.22.0",
     "dotenv": "^16.4.5",
     "jest": "^29.7.0",
     "nodemon": "^3.1.0",

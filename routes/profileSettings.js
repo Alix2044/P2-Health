@@ -56,7 +56,7 @@ function calculateBMI(weight, height) {
 }
 
 
-
+// TEST
 function calculateBMR( height, weight, age, gender, activityLevel ) {
     const factor = getActivityFactor(activityLevel);
     const genderFactor = gender.toLowerCase() === "male" ? 5 : -161;
@@ -136,7 +136,7 @@ router.put('/personalInformation', ensureAuthenticated, validatePersonalInformat
     }
 });
 
-
+// TEST
 const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, cuisine) => {
     console.log(ingredients);
     const params = {
@@ -180,6 +180,7 @@ const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, 
     }
 };
 
+// TEST
 const findRecipeByIdBulk = async (ids) => {
     const params = {
         apiKey: API_KEY,
@@ -246,6 +247,7 @@ const createFinalMealPlan = (sortedMealPlans) => {
     return finalMealPlan;
 };
 
+// TEST
 async function createMealplan(userId, user){
     console.log(user);
     const today = new Date();
@@ -375,51 +377,7 @@ async function createMealplan(userId, user){
 
 
 
-/**
- * GET /
- * User-Profile-Mealp8lan settings
-*/ /*
-router.get('/mealPreferences',ensureAuthenticated,async (req, res)=>{
-    const userId = req.user._id; 
-    console.log(userId);
-    const userModel = await UserModel.findById(userId);
-    const user=await User.findById(userId);
-    if (!user) {
-        return res.status(404).send('User not found');
-    }
 
-    if (!user.bmrCompleted){
-        res.redirect('/profileSettings/personalInformation');
-    }
-
-    try {
-        const typeEnums = UserModel.schema.path('mealPreferences.breakfast').enumValues;
-
-        
-            res.render('mealPreferences', {
-            diets: DIETS,
-            intolerance:INTOLERANCES,
-            cuisines: CUISINES,
-            breakfastIngredients: BREAKFASTINGREDIENTS,
-            lunchIngredients: LUNCHINGREDIENTS,
-            dinnerIngredients: DINNERINGREDIENTS,
-            selectedCuisines: userModel.cuisines,
-            selectedDiets: userModel.diets,
-            selectedIntolerance: userModel.diets,
-            selectedBreakfastIngredients: userModel.breakfastIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
-            selectedLunchIngredients: userModel.lunchIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
-            selectedDinnerIngredients: userModel.dinnerIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
-            enums: typeEnums,
-            user: userModel
-        });
-
-    } catch (error) {
-        console.error("Error loading meal plan settings:", error);
-        res.status(500).send("Failed to load settings");
-    }
-});
-
-*/ 
 router.get('/mealPreferences', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user._id; 
@@ -641,4 +599,5 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
-module.exports= router 
+//module.exports= {router,calculateBMI, calculateBMR, getActivityFactor,fetchMealsForMealType}; 
+module.exports= router;
