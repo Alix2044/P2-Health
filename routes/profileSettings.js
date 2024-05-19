@@ -626,6 +626,7 @@ function cosineSimilarity(magnitudes, dotProducts, myRecipes) {
 
 
 function sorting(cosineResults, myRecipes, topN = 7) {
+    // Maybe use an actual sorting algorithm for report purposes. 
     cosineResults.sort((a, b) => b.score - a.score);
     console.log("Sorted Cosine Results: " + JSON.stringify(cosineResults, null, 2));
     return cosineResults.slice(0, topN).map(x => ({
