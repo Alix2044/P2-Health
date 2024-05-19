@@ -20,31 +20,30 @@ const validateRegistration = [
     })
 ];
 
-// GET route for rendering the registration form
+
 router.get('/register', redirectToDashboardIfAuthenticated, (req, res) => {
     res.render('register', { messages: req.flash(), layout: false });
 });
 
-// GET route for rendering the login form
+
 router.get('/login', redirectToDashboardIfAuthenticated, (req, res) => {
     res.render('login', { messages: req.flash(), layout: false });
 });
 
-// POST route for handling u,ser login
+
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/dashboard',
     failureRedirect: '/auth/login',
     failureFlash: true
 }));
 
-// POST route for handling user registration
 router.post('/register', validateRegistration, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
        errors.array().forEach(error => {
             req.flash('error', error.msg);
         });
-        // Redirect to the registration page with flash messages
+      
         return res.redirect('/auth/register');
     }
 
@@ -72,7 +71,6 @@ router.post('/register', validateRegistration, async (req, res) => {
     }
 });
 
-// GET route for handling user logout
 router.get('/logout', ensureAuthenticated, (req, res) => {
     req.logout((err) => {
         if (err) {

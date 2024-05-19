@@ -58,7 +58,6 @@ app.use(sessions({
 
 // Adding flash middleware for flash messages
 app.use(flash());
-app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')))
 
 
@@ -82,12 +81,12 @@ app.use('/profileSettings',require('./routes/profileSettings'))
 
 
 
-/*
-// Routes doesn't exis 
+
+// Route doesn't exis 
 app.use((req, res, next) => {
- res.render('404');
+ res.render('index');
 });
-*/
+
 
 const PORT =  process.env.PORT || 3000;
 
