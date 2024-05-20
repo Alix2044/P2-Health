@@ -1,14 +1,17 @@
-
 const express = require('express');
 const router = express.Router();
+const { ensureAuthenticated } = require('../auth/isAuthenticated'); // Ensure this middleware is used
+const Message = require('../models/Message');
+const User = require('../models/User');
 
-// Handle GET request to /chat/:roomId
-router.get('/:roomId', (req, res) => {
+router.get('/:roomId', ensureAuthenticated, async (req, res) => {
   const roomId = req.params.roomId;
-  // Render the chat interface for the specified room ID
-  const currentUserName = req.user.fullName;
+  const user = req.user; 
+
   
-  res.render('chat', { roomId, user:currentUserName});
+  const messages = await Message.find({ roomId }).populate('user', 'username').sort({ timestamp: 1 });
+
+  res.render('chat', { roomId, userId: user._id, user: user.username, messages });
 });
 
 module.exports = router;

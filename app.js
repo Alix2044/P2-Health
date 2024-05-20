@@ -11,6 +11,7 @@ const MongoStore = require('connect-mongo');
 const {Server } = require('socket.io');
 const Challenge = require('./models/Challenge');
 const methodOverride= require('method-override');
+const Message = require('./models/Message');
 
 
 const app = express(); 
@@ -82,7 +83,7 @@ app.use('/profileSettings',require('./routes/profileSettings'))
 
 
 
-// Route doesn't exis 
+// Route doesn't exist
 app.use((req, res, next) => {
  res.render('index');
 });
@@ -97,6 +98,7 @@ const server  = app.listen( PORT, () => {
 
 const io = new Server(server);
 
+/*
 
 io.on('connection', (socket) => {
   socket.on('joinRoom', (roomId) => {
@@ -105,5 +107,28 @@ io.on('connection', (socket) => {
 
   socket.on('chatMessage', ({ roomId, msg }) => {
     io.to(roomId).emit('message', msg); 
+  });
+});*/
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('joinRoom', ({ roomId, userId }) => {
+    socket.join(roomId);
+    console.log(`User ${userId} joined room: ${roomId}`);
+  });
+
+  socket.on('chatMessage', async ({ roomId, userId, message }) => {
+    try {
+      const newMessage = new Message({ roomId, user: userId, text: message });
+      await newMessage.save();
+
+      io.to(roomId).emit('message', { userId, message, timestamp: newMessage.timestamp });
+    } catch (err) {
+      console.error('Error saving message to database:', err);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
   });
 });

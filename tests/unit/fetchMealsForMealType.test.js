@@ -34,7 +34,7 @@ describe('fetchMealsForMealType function', () => {
   
 });
 test('fetches meals successfully with different ingredients, diet, cuisine, and meal type', async () => {
-    // Mock data for meals
+    // Mock data/ingredients for meals
     const mockMeals = [
         { id: 1, nutrition: { ingredients: ['Salmon', 'Broccoli', 'Rice'] } },
         { id: 2, nutrition: { ingredients: ['Chicken', 'Tomatoes', 'Quinoa'] } }
@@ -109,7 +109,7 @@ test('handle when API error', async () => {
     const ingredients = ['Chicken', 'Salad', 'Tomatoes'];
     const diet = 'Ketogenic';
     const mealType = 'Lunch Type';
-    const mealCalories = { calories: 400 };
+    const mealCalories = { calories: 425 };
     const cuisine = ['Asian'];
 
     const result = await fetchMealsForMealType(ingredients, diet, mealType, mealCalories, cuisine);

@@ -1,145 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en">    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messenger Style Chat</title>
     <style>
         body {
-            font-family: Rubik;
-            width: 90vw;
+            font-family: 'Rubik', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
             background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
-            margin-left: 120px;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 80%;
+            background-color: #f5f5f5;
+            border-radius: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         #messages {
-            
+            flex: 1;
+            padding: 20px;
             list-style-type: none;
-            padding: 0;
-            margin: 0;
             overflow-y: scroll;
-            height: 74vh;
-            background-color: #a7eba1;
             border-bottom: 1px solid #ddd;
-            box-sizing: border-box;
-            width: 100%;
-            padding: 0px;
-            margin-top: 30px;
+            scrollbar-color: #a7eba1 #94e38c;
             border-top-left-radius: 25px;
             border-top-right-radius: 25px;
-            scrollbar-color:#a7eba1 #94e38c
-            
         }
 
         #messages li {
-            padding: 16px 32px;
-            margin-bottom: 8px;
-            max-width: 150%;
-            word-wrap: break-word;
+            padding: 10px;
+            margin-bottom: 10px;
             border-radius: 12px;
             clear: both;
+            position: relative;
         }
 
         #messages .mine {
-            background-color: #187c2c; /* Your message color */
+            background-color: #187c2c;
             color: #fff;
-            width: 150px;
-            font-size: large;
-            font-family: Rubik, sans-serif;
-            float: right;
-            margin: 10px; /* Align to the right */
-
+            align-self: flex-end;
+            max-width: 60%;
+            margin-left: auto;
         }
 
         #messages .theirs {
-            background-color: #ddd; /* Their message color */
+            background-color: #ddd;
             color: #333;
-            float: left;
-            margin: 10px; /* Align to the left */
+            align-self: flex-start;
+            max-width: 60%;
+        }
+
+        #messages .timestamp {
+            font-size: 0.8em;
+            color: #999;
+            position: absolute;
+            bottom: -20px;
+            right: 10px;
         }
 
         #form {
             display: flex;
+            padding: 15px;
+            background-color: #12372A;
             border-bottom-left-radius: 25px;
             border-bottom-right-radius: 25px;
-            padding: 13px;
-            background-color: #12372A;
-            border-top: 1px solid #12372A;
-            
         }
 
         #input {
             flex: 1;
-            padding: 13px;
+            padding: 10px;
             border: none;
             border-radius: 20px;
             margin-right: 10px;
+            font-size: 16px;
         }
 
         #form button {
             background-color: #FFCE89;
             color: #fff;
             border: none;
-            padding: 10px 30px;
+            padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
-            margin-left: 5px;
-        }
-
-        #textbox{
-            display: flex;
-            justify-content: flex-end;
-            flex-grow: 4;
+            font-size: 16px;
         }
 
         #form button:hover {
             background-color: #a18939;
         }
+
+        .user-name {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    
-    <ul id="messages"></ul>
-    
-    <div class="textbox">
-    
-        <form id="form" action="">
-        <input id="input" autocomplete="off" placeholder="Chat as <%= user%>"/><button>Send</button>
-        </form>
+    <div class="chat-container">
+        <ul id="messages">
+            <% messages.forEach(message => { %>
+                <li class="<%= message.user._id.equals(userId) ? 'mine' : 'theirs' %>">
+                    <div class="user-name"><%= message.user.username %></div>
+                    <div class="message-text"><%= message.text %></div>
+                    <div class="timestamp"><%= new Date(message.timestamp).toLocaleTimeString() %></div>
+                </li>
+            <% }) %>
+        </ul>
+        <div class="textbox">
+            <form id="form" action="">
+                <input id="input" autocomplete="off" placeholder="Type a message..."/>
+                <button>Send</button>
+            </form>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-   <script>
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
-        const messages = document.getElementById('messages');
+    <script>
+    const socket = io();
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const msg = input.value.trim();
-            if (msg) {
-                const senderName = '<%= user %>'; 
-                   const roomId = '<%= roomId %>';; 
-                const data = { senderName, msg };
-                console.log(data); 
-                displayMessage(data); 
-                input.value = '';
-            }
-        });
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+    const messages = document.getElementById('messages');
+    const userId = '<%= userId %>';
+    const roomId = '<%= roomId %>';
 
-        // Simulate receiving a message
-        function displayMessage(data) {
-            const { senderName, msg } = data;
-            const item = document.createElement('li');
-            item.textContent = `${msg}`;
-            item.classList.add('mine');
-            messages.appendChild(item);
-            
-            window.scrollTo(0, document.body.scrollHeight);
+    socket.emit('joinRoom', { roomId, userId });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const msg = input.value.trim();
+        if (msg) {
+            socket.emit('chatMessage', { roomId, userId, message: msg });
+            input.value = '';
         }
-    </script>
+    });
 
+    // Listen for messages from the server
+    socket.on('message', (data) => {
+        const { userId: senderId, message, timestamp, user } = data;
+        displayMessage({ senderId, message, timestamp, user });
+    });
+
+    function displayMessage(data) {
+        const { senderId, message, timestamp, user } = data;
+        const item = document.createElement('li');
+        item.classList.add(senderId === userId ? 'mine' : 'theirs');
+
+        const userNameDiv = document.createElement('div');
+        userNameDiv.classList.add('user-name');
+        userNameDiv.textContent = user.username;
+
+        const messageTextDiv = document.createElement('div');
+        messageTextDiv.classList.add('message-text');
+        messageTextDiv.textContent = message;
+
+        const timestampDiv = document.createElement('div');
+        timestampDiv.classList.add('timestamp');
+        timestampDiv.textContent = new Date(timestamp).toLocaleTimeString();
+
+        item.appendChild(userNameDiv);
+        item.appendChild(messageTextDiv);
+        item.appendChild(timestampDiv);
+        messages.appendChild(item);
+
+        // Scroll to the bottom of the messages
+        messages.scrollTop = messages.scrollHeight;
+    }
+    </script>
 </body>
 </html>
