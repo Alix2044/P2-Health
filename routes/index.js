@@ -67,6 +67,22 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
                 carbs: dailyPlan.carb,
                 fat: dailyPlan.fat
             };
+            const nutritionToday = {
+                protein: 0,
+                carbs: 0,
+                fat: 0
+            };
+
+            // Summing up the nutrition values from breakfast, lunch, and dinner
+            const meals = dailyPlan.meals;
+            for (const mealType of ['breakfast', 'lunch', 'dinner']) {
+                const meal = meals[mealType];
+                if (meal && meal.nutrition) {
+                    nutritionToday.protein += meal.nutrition.protein || 0;
+                    nutritionToday.carbs += meal.nutrition.carb || 0;
+                    nutritionToday.fat += meal.nutrition.fat || 0;
+                }
+            }
 
             res.render('dashboard', {
                 date: formatDate(today),
@@ -75,6 +91,7 @@ router.get('/dashboard', ensureAuthenticated, async (req, res) => {
                 carbs: userModel.carbohydrates.min,
                 fat: userModel.fat.min,
                 totalNutrition: totalNutrition,
+                nutritionToday: nutritionToday,
                 meals: dailyPlan.meals,
                 name: name,
                 users: users,

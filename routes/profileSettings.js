@@ -20,7 +20,6 @@ const BREAKFASTINGREDIENTS = require('../helpers/breakfastIngredients');
 const LUNCHINGREDIENTS = require('../helpers/lunchIngredients');
 const DINNERINGREDIENTS = require('../helpers/dinnerIngredients');
 const getActivityFactor = require('../helpers/activitylevel');
-const intolerances = require('../helpers/intolerances');
 const UserModels = require('../models/UserModels');
 const BASE_URL = 'https://api.spoonacular.com/recipes/complexSearch?';
 const API_KEY=process.env.API_KEY_SPOONACULAR;
@@ -95,6 +94,12 @@ router.put('/personalInformation', ensureAuthenticated, validatePersonalInformat
     console.log(BMR);
     const calories = BMR - 500;
     const BMI = calculateBMI(weightKG, heightCM);
+    var sodium;
+    if (BMI >=30){
+        sodium = 1500;
+    }else{
+        sodium = 2300;
+    }
     const protein = calculateMacros(calories, 'protein');
     const fat = calculateMacros(calories, 'fat');
     const carbohydrates=calculateMacros(calories, 'carbs');
@@ -111,7 +116,9 @@ router.put('/personalInformation', ensureAuthenticated, validatePersonalInformat
             protein: {min: protein.min, max: protein.max},
             fat:{min: fat.min, max: fat.max},
             carbohydrates:{min: carbohydrates.min, max: carbohydrates.max},
-            activityLevel
+            sodium: sodium,
+            activityLevel,
+            
         };
 
         const userModel = await UserModel.findOneAndUpdate({ _id: userId }, { $set: update }, { new: true, upsert: true });
@@ -137,26 +144,28 @@ router.put('/personalInformation', ensureAuthenticated, validatePersonalInformat
 });
 
 
-const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, cuisine) => {
+const fetchMealsForMealType = async (ingredients, diet, mealType, caloriesAndSodium, cuisine, totalResults, intolerances) => {
     console.log(ingredients);
     const params = {
             apiKey: API_KEY,
             includeIngredients: ingredients.join(","),
             type: mealType,
             addRecipeNutrition: true,
-            number: 100, 
-            minCalories: Math.ceil(mealCalories.calories * 0.9),
-            maxCalories: Math.ceil(mealCalories.calories * 1.1),
+            number: totalResults, 
+            minCalories: Math.ceil(caloriesAndSodium.calories * 0.9),
+            maxCalories: Math.ceil(caloriesAndSodium.calories * 1.1),
+            maxSodium: caloriesAndSodium.sodium,
             sort: "max-used-ingredients",
             addRecipeInformation: true
         };
 
-    if (diet) params.diet = diet;
+    if (diet) params.diet = diet.join(',');
     if (cuisine){
-        for (cuisines in cuisine){
-            params.cuisine = cuisine;
+        for (let cuisines in cuisine){
+            params.cuisine = cuisines;
         }
     } 
+    if (intolerances) params.intolerances=intolerances.join(',');
 
     try {
         const response = await axios.get(BASE_URL, { params });
@@ -214,15 +223,16 @@ const findRecipeByIdBulk = async (ids) => {
     }
 };
 
-const calculateMealCalories = (dailyCalories, mealPreference) => {
+const calculateMealCaloriesAndSodium = (dailyCalories, dailySodium, mealPreference) => {
     const factors = {
         light: 0.2,
-        normal: 0.33,
+        normal: 0.333,
         heavy: 0.47
     }[mealPreference] || 0.333; // Default to 'normal' if undefined
 
     return {
         calories: dailyCalories * factors,
+        sodium: dailySodium * factors
     };
 };
 
@@ -246,14 +256,13 @@ const createFinalMealPlan = (sortedMealPlans) => {
     return finalMealPlan;
 };
 
-async function createMealplan(userId, user){
+async function createMealplan(userId, user, req, res) {
     console.log(user);
     const today = new Date();
     today.setHours(0, 0, 0, 0);  // Reset the time part to ensure all comparisons are only date-based
     const dailyCalories = user.calories;
     console.log(dailyCalories);
 
-    // Check for existing meal plan and remove it if it's under 7 days old
     let mealPlan = await MealPlan.findOne({
         userId: userId,
         startDate: { $lte: today, $gte: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000) }
@@ -263,31 +272,36 @@ async function createMealplan(userId, user){
         await MealPlan.deleteOne({ _id: mealPlan._id });
     }
 
-    // Create a new meal plan
     mealPlan = new MealPlan({
         userId: userId,
         startDate: today,
         dailyPlans: []
     });
-    // Define an object to store sorted lists for each meal type
+
     const sortedMealPlans = {
         breakfast: [],
         lunch: [],
         dinner: []
     };
 
-
-    try{
-        // Populate each meal type into the day plan
+    try {
         for (const mealType of ['breakfast', 'lunch', 'dinner']) {
             const mealPreferences = user.mealPreferences[mealType];
-            const mealCalories = calculateMealCalories(user.calories,mealPreferences);
+            const caloriesAndSodium = calculateMealCaloriesAndSodium(user.calories, user.sodium, mealPreferences);
             console.log(mealType);
             const ingredients = user[`${mealType}Ingredients`];
-            const diets= user.diets;
-            const cuisines=user.cuisine;
-            const recipes = await fetchMealsForMealType(ingredients, diets, mealType, mealCalories, cuisines);
+            const diets = user.diets;
+            const cuisines = user.cuisine;
+            const intolerances = user.intolerances;
+            const totalResults = await getTotalResults(ingredients, diets, mealType, caloriesAndSodium, cuisines, intolerances);
+            if (totalResults==null || totalResults==0){
+                req.flash('error', `Could not find any matching recipes for ${mealType}`);
+                res.redirect('/profileSettings/mealPreferences');
+                return; // Exit the loop and redirect
+            }
+            const recipes = await fetchMealsForMealType(ingredients, diets, mealType, caloriesAndSodium, cuisines, totalResults, intolerances);
             console.log(recipes);
+
 
             let allRecipeIngredients = recipes.flatMap(recipe => recipe.listOfIngredients);
             const clearedIngredients = [...new Set(allRecipeIngredients)];
@@ -301,25 +315,25 @@ async function createMealplan(userId, user){
             const cosineSimilaritys = cosineSimilarity(magnitudes, dotProducts, recipes);
             console.log(cosineSimilaritys);
 
-            //const cosineResultsList = await findRecipeById(cosineSimilaritys); // Assume this finds the recipe based on ID
-            if (recipes.length>7){
-                sortedList=sorting(cosineSimilaritys, recipes, recipes.length)
-            }else{
-                sortedList=sorting(cosineSimilaritys, recipes);
+            let sortedList;
+            if (recipes.length > 7) {
+                console.log("More than 7 recipes, sorting...");
+                sortedList = sorting(cosineSimilaritys, recipes, recipes.length);
+            } else {
+                sortedList = sorting(cosineSimilaritys, recipes);
             }
 
             sortedMealPlans[mealType] = sortedList;
         }
-    }catch (error){
+    } catch (error) {
         console.error("Error recipes: ", error);
         req.flash('error', 'Error getting the recipes. Please try again.');
         res.redirect('/profileSettings/mealPreferences');
-
+        return;
     }
 
-    //search the recipes 
-    const finalMealPlanId=createFinalMealPlan(sortedMealPlans);
-    let i=0;
+    const finalMealPlanId = createFinalMealPlan(sortedMealPlans);
+    let i = 0;
     for (const mealPlans of finalMealPlanId) {
         let dayDate = new Date(today);
         dayDate.setDate(today.getDate() + i); // Increment the date by i days
@@ -332,37 +346,30 @@ async function createMealplan(userId, user){
             carb: 0,
             fat: 0
         };
+
         const ids = [mealPlans.breakfastId, mealPlans.lunchId, mealPlans.dinnerId];
+
         const recipes = await findRecipeByIdBulk(ids);
         console.log(`Recipes for IDs ${ids.join(', ')}:`, recipes);
 
-        // Map recipes to their corresponding meal types
+        // Assign recipes to meal types
         recipes.forEach(recipe => {
             if (recipe.id === mealPlans.breakfastId) {
                 dayPlan.meals.breakfast = recipe;
-            } else if (recipe.id === mealPlans.lunchId) {
+            }
+            if (recipe.id === mealPlans.lunchId) {
                 dayPlan.meals.lunch = recipe;
-            } else if (recipe.id === mealPlans.dinnerId) {
+            }
+            if (recipe.id === mealPlans.dinnerId) {
                 dayPlan.meals.dinner = recipe;
             }
         });
 
-        // Check and log if any meal type has no data retrieved
-        for (const mealType of ['breakfast', 'lunch', 'dinner']) {
-            const meal = dayPlan.meals[mealType];
-            if (meal) {
-                console.log(`Meal data retrieved for ${mealType}:`, meal);
-            } else {
-                console.log(`No meal data retrieved for ${mealType}`);
-            }
-        }
-        // Add the new day plan to the meal plan's daily plans array
         console.log('Adding day plan:', dayPlan);
         mealPlan.dailyPlans.push(dayPlan);
         i++;
     }
 
-    // Attempt to save the new meal plan
     try {
         await mealPlan.save();
         console.log('Meal plan saved successfully');
@@ -372,54 +379,43 @@ async function createMealplan(userId, user){
 }
 
 
-
-
-
-/**
- * GET /
- * User-Profile-Mealp8lan settings
-*/ /*
-router.get('/mealPreferences',ensureAuthenticated,async (req, res)=>{
-    const userId = req.user._id; 
-    console.log(userId);
-    const userModel = await UserModel.findById(userId);
-    const user=await User.findById(userId);
-    if (!user) {
-        return res.status(404).send('User not found');
-    }
-
-    if (!user.bmrCompleted){
-        res.redirect('/profileSettings/personalInformation');
-    }
+async function getTotalResults(ingredients, diet, mealType, caloriesAndSodium, cuisine, intolerances){
+    console.log(ingredients);
+    const params = {
+        apiKey: API_KEY,
+        includeIngredients: ingredients.join(","),
+        type: mealType,
+        addRecipeNutrition: true,
+        number: 1, 
+        minCalories: Math.ceil(caloriesAndSodium.calories * 0.9),
+        maxCalories: Math.ceil(caloriesAndSodium.calories * 1.1),
+        maxSodium: caloriesAndSodium.sodium,
+        sort: "max-used-ingredients",
+        addRecipeInformation: true
+    };
+    console.log("KKKKKKK"+" "+ JSON.stringify(caloriesAndSodium.sodium, null, 2));
+    if (diet) params.diet = diet.join(',');
+    if (cuisine){
+        for (let cuisines in cuisine){
+            params.cuisine = cuisines;
+        }
+    } 
+    if (intolerances) params.intolerances=intolerances.join(',');
 
     try {
-        const typeEnums = UserModel.schema.path('mealPreferences.breakfast').enumValues;
-
-        
-            res.render('mealPreferences', {
-            diets: DIETS,
-            intolerance:INTOLERANCES,
-            cuisines: CUISINES,
-            breakfastIngredients: BREAKFASTINGREDIENTS,
-            lunchIngredients: LUNCHINGREDIENTS,
-            dinnerIngredients: DINNERINGREDIENTS,
-            selectedCuisines: userModel.cuisines,
-            selectedDiets: userModel.diets,
-            selectedIntolerance: userModel.diets,
-            selectedBreakfastIngredients: userModel.breakfastIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
-            selectedLunchIngredients: userModel.lunchIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
-            selectedDinnerIngredients: userModel.dinnerIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
-            enums: typeEnums,
-            user: userModel
-        });
-
+        const response = await axios.get(BASE_URL, { params });
+        const totalResults = response.data.totalResults; // Corrected line
+        console.log("Total results: " + totalResults);
+        return totalResults;
     } catch (error) {
-        console.error("Error loading meal plan settings:", error);
-        res.status(500).send("Failed to load settings");
+        console.error(`Error fetching ${mealType}:`, error);
+        req.flash("error", `Could not find any recipes for: ${mealType}. Please add or change the ingredient list`)
+        return null; // Changed to null for consistency with no results case
     }
-});
+}   
 
-*/ 
+
+
 router.get('/mealPreferences', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.user._id; 
@@ -447,7 +443,7 @@ router.get('/mealPreferences', ensureAuthenticated, async (req, res) => {
             dinnerIngredients: DINNERINGREDIENTS,
             selectedCuisines: userModel.cuisines,
             selectedDiets: userModel.diets,
-            selectedIntolerance: userModel.diets,
+            selectedIntolerance: userModel.intolerances,
             selectedBreakfastIngredients: userModel.breakfastIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
             selectedLunchIngredients: userModel.lunchIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
             selectedDinnerIngredients: userModel.dinnerIngredients.map(ingredient => capitalizeFirstLetter(ingredient)),
@@ -462,7 +458,7 @@ router.get('/mealPreferences', ensureAuthenticated, async (req, res) => {
 });
 
 
-router.put('/mealPreferences',ensureAuthenticated, async (req, res) => {
+router.put('/mealPreferences', ensureAuthenticated, async (req, res) => {
     const userId = req.user._id; 
     console.log(userId);
     const user = await User.findById(userId);
@@ -472,14 +468,14 @@ router.put('/mealPreferences',ensureAuthenticated, async (req, res) => {
     }
     let selectedCuisines = req.body.cuisines || [];
     let selectedDiets = req.body.diets || [];
+    let intolorences = req.body.intolerance || [];
     let selectedBreakfastIngredients = (req.body.breakfastIngredients || []).map(ingredient => ingredient.trim().toLowerCase());
     let selectedLunchIngredients = (req.body.lunchIngredients || []).map(ingredient => ingredient.trim().toLowerCase());
     let selectedDinnerIngredients = (req.body.dinnerIngredients || []).map(ingredient => ingredient.trim().toLowerCase());
-    let breakfastType=req.body.breakfastType;
-    let lunchType=req.body.lunchType;
-    let dinnerType=req.body.dinnerType;
+    let breakfastType = req.body.breakfastType;
+    let lunchType = req.body.lunchType;
+    let dinnerType = req.body.dinnerType;
 
-    // Check the number of ingredients selected for each meal
     if (selectedBreakfastIngredients.length <= 1) {
         req.flash('error', 'Please select more than one ingredient for breakfast.');
     }
@@ -490,7 +486,6 @@ router.put('/mealPreferences',ensureAuthenticated, async (req, res) => {
         req.flash('error', 'Please select more than one ingredient for dinner.');
     }
 
-    // Redirect back if any condition is not met
     if (selectedBreakfastIngredients.length <= 1 || selectedLunchIngredients.length <= 1 || selectedDinnerIngredients.length <= 1) {
         res.redirect('/profileSettings/mealPreferences'); 
         return;
@@ -501,13 +496,13 @@ router.put('/mealPreferences',ensureAuthenticated, async (req, res) => {
             $set: {
                 cuisines: selectedCuisines,
                 diets: selectedDiets,
+                intolerances:intolorences,
                 breakfastIngredients: selectedBreakfastIngredients,
                 lunchIngredients: selectedLunchIngredients,
                 dinnerIngredients: selectedDinnerIngredients,
-                "mealPreferences.breakfast":breakfastType,
-                "mealPreferences.lunch":lunchType,
-                "mealPreferences.dinner":dinnerType
-
+                "mealPreferences.breakfast": breakfastType,
+                "mealPreferences.lunch": lunchType,
+                "mealPreferences.dinner": dinnerType
             }
         });
         console.log("Updated user:", userId);
@@ -520,12 +515,12 @@ router.put('/mealPreferences',ensureAuthenticated, async (req, res) => {
     const updatedUserModel = await UserModel.findById(userId);
 
     try {
-        await createMealplan(userId, updatedUserModel); 
-        if (!user.questionnaireCompleted){
-            user.questionnaireCompleted=true;
+        await createMealplan(userId, updatedUserModel, req, res); 
+        if (!user.questionnaireCompleted) {
+            user.questionnaireCompleted = true;
             await user.save();
             res.redirect('/dashboard');
-        }else{
+        } else {
             console.log("After");
             res.redirect('/profileSettings/mealPreferences');
         }  
@@ -625,11 +620,48 @@ function cosineSimilarity(magnitudes, dotProducts, myRecipes) {
 }
 
 
+// function sorting(cosineResults, myRecipes, topN = 7) {
+//     // Maybe use an actual sorting algorithm for report purposes. 
+//     cosineResults.sort((a, b) => b.score - a.score);
+//     console.log("Sorted Cosine Results: " + JSON.stringify(cosineResults, null, 2));
+//     return cosineResults.slice(0, topN).map(x => ({
+//         id: myRecipes[x.index].id,
+//         score: x.score
+//     }));
+// }
+
+function randomizedQuicksort(arr, left = 0, right = arr.length - 1) {
+    if (left < right) {
+        const pivotIndex = randomPartition(arr, left, right);
+        randomizedQuicksort(arr, left, pivotIndex - 1);
+        randomizedQuicksort(arr, pivotIndex + 1, right);
+    }
+    return arr;
+}
+
+function randomPartition(arr, left, right) {
+    const randomIndex = left + Math.floor(Math.random() * (right - left + 1));
+    [arr[randomIndex], arr[right]] = [arr[right], arr[randomIndex]]; // Swap random pivot to end
+    return partition(arr, left, right);
+}
+
+function partition(arr, left, right) {
+    const pivotValue = arr[right].score;
+    let pivotIndex = left;
+    for (let i = left; i < right; i++) {
+        if (arr[i].score > pivotValue) { // Sorting in descending order
+            [arr[i], arr[pivotIndex]] = [arr[pivotIndex], arr[i]];
+            pivotIndex++;
+        }
+    }
+    [arr[pivotIndex], arr[right]] = [arr[right], arr[pivotIndex]];
+    return pivotIndex;
+}
+
 function sorting(cosineResults, myRecipes, topN = 7) {
-    // Maybe use an actual sorting algorithm for report purposes. 
-    cosineResults.sort((a, b) => b.score - a.score);
-    console.log("Sorted Cosine Results: " + JSON.stringify(cosineResults, null, 2));
-    return cosineResults.slice(0, topN).map(x => ({
+    const sortedRecipes = randomizedQuicksort(cosineResults).slice(0, topN);
+    console.log("Top N Sorted Recipes: " + JSON.stringify(sortedRecipes, null, 2));
+        return sortedRecipes.slice(0, topN).map(x => ({
         id: myRecipes[x.index].id,
         score: x.score
     }));

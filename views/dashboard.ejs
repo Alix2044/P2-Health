@@ -355,9 +355,9 @@ google.charts.load('current', {'packages':['corechart']});
 
 const thresholds = {
     calories: JSON.parse('<%- JSON.stringify(calories) %>'),  
-    protein: JSON.parse('<%- JSON.stringify(protein) %>'),       
-    fats:   JSON.parse('<%- JSON.stringify(fat) %>'),           
-    carbohydrates: JSON.parse('<%- JSON.stringify(carbs) %>'),        
+    protein: JSON.parse('<%- JSON.stringify(nutritionToday.protein) %>'),       
+    fats:   JSON.parse('<%- JSON.stringify(nutritionToday.fat) %>'),           
+    carbohydrates: JSON.parse('<%- JSON.stringify(nutritionToday.carbs) %>'),        
 };
 
 // Set a callback to run when the Google Visualization API is loaded.
