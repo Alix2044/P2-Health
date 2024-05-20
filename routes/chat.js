@@ -11,7 +11,7 @@ router.get('/:roomId', ensureAuthenticated, async (req, res) => {
   
   const messages = await Message.find({ roomId }).populate('user', 'username').sort({ timestamp: 1 });
 
-  res.render('chat', { roomId, userId: user._id, user: user.username, messages });
+  res.render('chat', { roomId, userId: user._id, user:user.fullName, messages });
 });
 
 module.exports = router;

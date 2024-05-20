@@ -1,180 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">    
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messenger Style Chat</title>
     <style>
-        body {
-            font-family: 'Rubik', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
-        }
-
-        .chat-container {
-            width: 90%;
-            max-width: 800px;
-            height: 80%;
-            background-color: #f5f5f5;
-            border-radius: 25px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #messages {
-            flex: 1;
-            padding: 20px;
-            list-style-type: none;
-            overflow-y: scroll;
-            border-bottom: 1px solid #ddd;
-            scrollbar-color: #a7eba1 #94e38c;
-            border-top-left-radius: 25px;
-            border-top-right-radius: 25px;
-        }
-
-        #messages li {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 12px;
-            clear: both;
-            position: relative;
-        }
-
-        #messages .mine {
-            background-color: #187c2c;
-            color: #fff;
-            align-self: flex-end;
-            max-width: 60%;
-            margin-left: auto;
-        }
-
-        #messages .theirs {
-            background-color: #ddd;
-            color: #333;
-            align-self: flex-start;
-            max-width: 60%;
-        }
-
-        #messages .timestamp {
-            font-size: 0.8em;
-            color: #999;
-            position: absolute;
-            bottom: -20px;
-            right: 10px;
-        }
-
-        #form {
-            display: flex;
-            padding: 15px;
-            background-color: #12372A;
-            border-bottom-left-radius: 25px;
-            border-bottom-right-radius: 25px;
-        }
-
-        #input {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 20px;
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        #form button {
-            background-color: #FFCE89;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        #form button:hover {
-            background-color: #a18939;
-        }
-
-        .user-name {
-            font-weight: bold;
-        }
+    
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <ul id="messages">
-            <% messages.forEach(message => { %>
-                <li class="<%= message.user._id.equals(userId) ? 'mine' : 'theirs' %>">
-                    <div class="user-name"><%= message.user.username %></div>
-                    <div class="message-text"><%= message.text %></div>
-                    <div class="timestamp"><%= new Date(message.timestamp).toLocaleTimeString() %></div>
-                </li>
-            <% }) %>
-        </ul>
-        <div class="textbox">
-            <form id="form" action="">
-                <input id="input" autocomplete="off" placeholder="Type a message..."/>
-                <button>Send</button>
-            </form>
-        </div>
+    <ul id="messages">
+        <% messages.forEach(message => { %>
+            <li class="<%= message.user._id.equals(userId) ? 'mine' : 'theirs' %>">
+                <%= message.text %>
+            </li>
+        <% }) %>
+    </ul>
+    <h1> <%= user %></h1>
+    <div class="textbox">
+        <form id="form" action="">
+            <input id="input" autocomplete="off" placeholder="Chat as <%= user %>"/><button>Send</button>
+        </form>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-    const socket = io();
+        const socket = io();
 
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
-    const messages = document.getElementById('messages');
-    const userId = '<%= userId %>';
-    const roomId = '<%= roomId %>';
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+        const userId = '<%= userId %>';
+        const roomId = '<%= roomId %>';
 
-    socket.emit('joinRoom', { roomId, userId });
+        // Join the room
+        socket.emit('joinRoom', { roomId, userId });
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const msg = input.value.trim();
-        if (msg) {
-            socket.emit('chatMessage', { roomId, userId, message: msg });
-            input.value = '';
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const msg = input.value.trim();
+            if (msg) {
+                socket.emit('chatMessage', { roomId, userId, message: msg });
+                input.value = '';
+            }
+        });
+
+        // Listen for messages from the server
+        socket.on('message', (data) => {
+            const { userId: senderId, message, timestamp } = data;
+            displayMessage({ senderId, message, timestamp });
+        });
+
+        function displayMessage(data) {
+            const { senderId, message, timestamp } = data;
+            const item = document.createElement('li');
+            item.textContent = `${new Date(timestamp).toLocaleTimeString()} - ${message}`;
+            item.classList.add(senderId === userId ? 'mine' : 'theirs');
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
         }
-    });
-
-    // Listen for messages from the server
-    socket.on('message', (data) => {
-        const { userId: senderId, message, timestamp, user } = data;
-        displayMessage({ senderId, message, timestamp, user });
-    });
-
-    function displayMessage(data) {
-        const { senderId, message, timestamp, user } = data;
-        const item = document.createElement('li');
-        item.classList.add(senderId === userId ? 'mine' : 'theirs');
-
-        const userNameDiv = document.createElement('div');
-        userNameDiv.classList.add('user-name');
-        userNameDiv.textContent = user.username;
-
-        const messageTextDiv = document.createElement('div');
-        messageTextDiv.classList.add('message-text');
-        messageTextDiv.textContent = message;
-
-        const timestampDiv = document.createElement('div');
-        timestampDiv.classList.add('timestamp');
-        timestampDiv.textContent = new Date(timestamp).toLocaleTimeString();
-
-        item.appendChild(userNameDiv);
-        item.appendChild(messageTextDiv);
-        item.appendChild(timestampDiv);
-        messages.appendChild(item);
-
-        // Scroll to the bottom of the messages
-        messages.scrollTop = messages.scrollHeight;
-    }
     </script>
 </body>
 </html>
