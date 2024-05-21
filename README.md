@@ -19,4 +19,12 @@ $ npm start
 # Run the server using Nodemon:
 $ npm run dev
 
-# Visit [http://localhost:5000](http://localhost:5000)
+# Visit [http://localhost:5000]
+
+## Test
+
+### Unit Test
+$ npm test
+
+### E2E
+$ npx cypress open

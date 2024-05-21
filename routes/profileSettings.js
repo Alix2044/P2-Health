@@ -599,5 +599,6 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
-//module.exports= {router,calculateBMI, calculateBMR, getActivityFactor,fetchMealsForMealType}; 
+//module.exports= {router,calculateBMI, calculateBMR, getActivityFactor,fetchMealsForMealType,
+  //  findRecipeByIdBulk,createMealplan}; 
 module.exports= router;
