@@ -5,23 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messenger Style Chat</title>
     <style>
-    
+  body {
+            font-family: 'Rubik';
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            width: 100%;
+        }
+        #messages {
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+            list-style: none;
+            padding: 20px;
+            padding-bottom: 100px;
+            margin: 0;
+           
+            flex-grow: 1;
+            background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
+            word-wrap: break-word;
+        }
+        #messages li {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            width:fit-content;
+            max-width: 60%;
+            
+        }
+        #messages .mine {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+        }
+        #messages .theirs {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            align-self: flex-start;
+        }
+        .textbox {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            width: -webkit-fill-available;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            background-color: #ffffff;
+            
+        }
+        .textbox form {
+            display: flex;
+            width: 100%;
+        }
+        .textbox input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+        .textbox button {
+            justify-content: flex-start;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+   
     </style>
 </head>
 <body>
     <ul id="messages">
         <% messages.forEach(message => { %>
             <li class="<%= message.user._id.equals(userId) ? 'mine' : 'theirs' %>">
-                <%= message.text %>
+               <strong><%= message.user.fullName %>:</strong> <%= message.text %>
             </li>
         <% }) %>
     </ul>
-    <h1> <%= user %></h1>
+
+ 
+
+    <!-- input -->
     <div class="textbox">
         <form id="form" action="">
             <input id="input" autocomplete="off" placeholder="Chat as <%= user %>"/><button>Send</button>
         </form>
-    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -32,9 +109,10 @@
         const messages = document.getElementById('messages');
         const userId = '<%= userId %>';
         const roomId = '<%= roomId %>';
+        const user ='<%= user %>';
 
         // Join the room
-        socket.emit('joinRoom', { roomId, userId });
+        socket.emit('joinRoom', { roomId, userId , user});
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -46,15 +124,17 @@
         });
 
         // Listen for messages from the server
-        socket.on('message', (data) => {
-            const { userId: senderId, message, timestamp } = data;
-            displayMessage({ senderId, message, timestamp });
+        socket.on('message', (data) => {           // when message happens runs displayMessage function
+            const { userId: senderId, fullName, message, timestamp } = data;
+            displayMessage({ senderId, fullName, message, timestamp, });
         });
 
         function displayMessage(data) {
-            const { senderId, message, timestamp } = data;
+            const { senderId, fullName, message, timestamp } = data;
             const item = document.createElement('li');
-            item.textContent = `${new Date(timestamp).toLocaleTimeString()} - ${message}`;
+            item.innerHTML = `<strong>${fullName}</strong>: ${message}`; //real-time message . ${new Date(timestamp).toLocaleTimeString()}
+            console.log(message);
+            console.log(fullName);
             item.classList.add(senderId === userId ? 'mine' : 'theirs');
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);

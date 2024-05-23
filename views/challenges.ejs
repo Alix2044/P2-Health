@@ -58,14 +58,13 @@
     <h1>Challenges</h1>
     <p style="color: blue; font-weight: bold;">You have <%=userPoints%> points! <% if (userPoints>=3){ %>
     <p  style="color: blue; font-weight: bold;">Good job, <%= currentUser.fullName%> !</p> <% } %></p>
-
     <ul>
         <% challenges.forEach(challenge => { %>
             <li>
                 <h3><%= challenge.title %></h3>
                 <p><%= challenge.description %></p>
                 <% if (!challenge.completedBy.includes(currentUser._id)) { %>
-                    <form action="/challenges/complete/<%= challenge._id %>" method="POST">
+                    <form action="/challenges/completed/<%= challenge._id %>" method="POST">
                         <button type="submit">Complete</button>
                     </form>
                 <% } else { %>
