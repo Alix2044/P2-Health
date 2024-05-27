@@ -354,10 +354,10 @@ function getColor(value, threshold) {
 google.charts.load('current', {'packages':['corechart']});
 
 const thresholds = {
-    calories: JSON.parse('<%- JSON.stringify(calories) %>'),  
-    protein: JSON.parse('<%- JSON.stringify(protein) %>'),       
-    fats:   JSON.parse('<%- JSON.stringify(fat) %>'),           
-    carbohydrates: JSON.parse('<%- JSON.stringify(carbs) %>'),        
+    calories: JSON.parse('<%- JSON.stringify(nutritionToday.calories) %>'),  
+    protein: JSON.parse('<%- JSON.stringify(nutritionToday.protein) %>'),       
+    fats:   JSON.parse('<%- JSON.stringify(nutritionToday.fat) %>'),           
+    carbohydrates: JSON.parse('<%- JSON.stringify(nutritionToday.carbs) %>'),           
 };
 
 // Set a callback to run when the Google Visualization API is loaded.
@@ -382,26 +382,25 @@ function drawNutrientPieChart(nutrient, amount, threshold, elementId) {
         ]);
 
         var options = {
-            //title: `${nutrient} Intake`,
             pieHole: 0.4,
             slices: {
                 0: { color: getColor(amount, threshold) },
-                1: { color: '#e0e0e0' }  // Light grey for remaining part
+                1: { color: '#e0e0e0' }  
             },
             pieSliceTextStyle: {
             color: 'black',
           },
           
-          backgroundColor: 'transparent', // Set the background to transparent
-            legend: { position: 'none' }, // Hide the legend
+          backgroundColor: 'transparent', 
+            legend: { position: 'none' }, 
             chartArea: {
             left: "10%",
             top: "10%",
             height: "80%",
             width: "80%"
             },
-            width: '100%', // Ensures that the chart uses the full width of its container
-            height: '100%' // Ensures that the chart uses the full height of its container
+            width: '100%', 
+            height: '100%' 
         };
 
         var chart = new google.visualization.PieChart(document.getElementById(elementId));
@@ -412,7 +411,6 @@ function updateMeal(mealType) {
     const checkbox = document.getElementById(mealType);
     const nutrition = JSON.parse(checkbox.getAttribute('data-nutrition'));
 
-    console.log("Updating meal with:", nutrition); // Check what values are being sent
 
     fetch(`/update-meal/${mealType}`, {
     method: 'PUT',
@@ -431,7 +429,7 @@ function updateMeal(mealType) {
 })
 .then(response => {
     if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('no response');
     }
     return response.json();
 })

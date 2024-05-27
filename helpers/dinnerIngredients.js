@@ -1,6 +1,6 @@
 const dinnerIngredients=["Salmon", "Rice", "Broccoli", "Garlic", "Lemons", "Mushrooms", "Turkey",
-"Pasta", "Tomato Sauce", "Parmesan Cheese", "Red Wine", "Fresh Basil", "Zucchini ", "Beans"
-, "Balsamic Vinegar", "Fish", "Barley", ];
+"Pasta", "Tomato sauce", "Parmesan cheese", "Red Wine", "Fresh basil", "Zucchini ", "Beans"
+, "Balsamic vinegar", "Fish", "Barley", ];
 
 
 module.exports=dinnerIngredients;
