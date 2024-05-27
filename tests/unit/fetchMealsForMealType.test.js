@@ -1,117 +1,81 @@
-const { fetchMealsForMealType} = require('../../routes/profileSettings');
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
+const { fetchMealsForMealType } = require('../../routes/profileSettings');
 
-describe('fetchMealsForMealType function', () => {
-  const mock = new MockAdapter(axios);
+const API_KEY = process.env.API_KEY_SPOONACULAR;
 
-  afterEach(() => {
-    mock.reset();
-  });
+describe('fetchMealsForMealType', () => {
+	let mock;
 
-  test('fetches meals successfully', async () => {
-    const mockMeals = [
-      { id: 1, nutrition: { ingredients: ['Chicken', 'Tomatoes', 'Quinoa'] } },
-      { id: 2, nutrition: { ingredients: ['Salmon', 'Broccoli', 'Rice'] } }
-    ];
+	beforeAll(() => {
+		mock = new MockAdapter(axios);
+	});
 
-    mock.onGet(PROCESS.ENV.API_KEY_SPOONACULAR).reply(200, { results: mockMeals });
+	afterEach(() => {
+		mock.reset();
+	});
 
-    const ingredients = ['Chicken', 'Tomatoes', 'Quinoa'];
-    const diet = 'Ketogenic';
-    const mealType = 'Breakfast Type';
-    const mealCalories = { calories: 500 };
-    const cuisine = ['Italian'];
+	afterAll(() => {
+		mock.restore();
+	});
 
-    const result = await fetchMealsForMealType(ingredients, diet, mealType, mealCalories, cuisine);
+	it('should fetch meals based on provided parameters', async () => {
+		const ingredients = [ 'chicken', 'rice' ];
+		const diet = 'Ketogenic';
+		const mealType = 'lunch';
+		const mealCalories = { calories: 350 };
+		const cuisine = 'italian';
 
-    expect(result).toEqual([
-      { id: 1, listOfIngredients: ['Chicken', 'Tomatoes', 'Quinoa'] },
-      { id: 2, listOfIngredients: ['Salmon', 'Broccoli', 'Rice'] }
-    ]);
-  });
+		const mockResponse = {
+			results: [
+				{
+					id: 1,
+					nutrition: { ingredients: [ { name: 'chicken' }, { name: 'rice' } ] }
+				},
+				{
+					id: 2,
+					nutrition: { ingredients: [ { name: 'tomato' }, { name: 'pasta' } ] }
+				}
+			]
+		};
 
-  
-});
-test('fetches meals successfully with different ingredients, diet, cuisine, and meal type', async () => {
-    // Mock data/ingredients for meals
-    const mockMeals = [
-        { id: 1, nutrition: { ingredients: ['Salmon', 'Broccoli', 'Rice'] } },
-        { id: 2, nutrition: { ingredients: ['Chicken', 'Tomatoes', 'Quinoa'] } }
-    ];
+		const expectedMeals = [
+			{ id: 1, listOfIngredients: [ 'chicken', 'rice' ] },
+			{ id: 2, listOfIngredients: [ 'tomato', 'pasta' ] }
+		];
 
-    
-    mock.onGet(PROCESS.ENV.API_KEY_SPOONACULAR).reply(200, { results: mockMeals });
+		mock.onGet('https://api.spoonacular.com/recipes/complexSearch?').reply(200, mockResponse);
 
-    // Test case 1
-    let ingredients1 = ['Salmon', 'Broccoli', 'Rice'];
-    let diet1 = 'Ketogenic';
-    let mealType1 = 'Breakfast Type';
-    let mealCalories1 = { calories: 500 };
-    let cuisine1 = ['Italian'];
-    let result1 = await fetchMealsForMealType(ingredients1, diet1, mealType1, mealCalories1, cuisine1);
+		const result = await fetchMealsForMealType(ingredients, diet, mealType, mealCalories, cuisine);
 
-    expect(result1).toEqual([
-        { id: 1, listOfIngredients: ['Salmon', 'Broccoli', 'Rice'] },
-        { id: 2, listOfIngredients: ['Chicken', 'Tomatoes', 'Quinoa'] }
-    ]);
+		expect(result).toEqual(expectedMeals);
+	});
 
-    // Test case 2
-    let ingredients2 = ['Chicken', 'Salad', 'Tomatoes'];
-    let diet2 = 'Vegetarian';
-    let mealType2 = 'Lunch Type';
-    let mealCalories2 = { calories: 400 };
-    let cuisine2 = ['Mediterranean'];
-    let result2 = await fetchMealsForMealType(ingredients2, diet2, mealType2, mealCalories2, cuisine2);
+	it('should return null when no meals are found from Spoonacular', async () => {
+		const ingredients = [ 'chicken', 'rice' ];
+		const diet = 'Ketogenic';
+		const mealType = 'lunch';
+		const mealCalories = { calories: 400 };
+		const cuisine = 'italian';
 
-    expect(result2).toEqual([
-        { id: 1, listOfIngredients: ['Salmon', 'Broccoli', 'Rice'] },
-        { id: 2, listOfIngredients: ['Chicken', 'Tomatoes', 'Quinoa'] }
-    ]);
+		mock.onGet('https://api.spoonacular.com/recipes/complexSearch?').reply(200, { results: [] });
 
-    // Test case 3
-    let ingredients3 = ['Tomatoes', 'Cucumber', 'Quinoa'];
-    let diet3 = 'Vegan';
-    let mealType3 = 'Dinner Type';
-    let mealCalories3 = { calories: 600 };
-    let cuisine3 = ['Asian'];
-    let result3 = await fetchMealsForMealType(ingredients3, diet3, mealType3, mealCalories3, cuisine3);
+		const result = await fetchMealsForMealType(ingredients, diet, mealType, mealCalories, cuisine);
 
-    expect(result3).toEqual([
-        { id: 1, listOfIngredients: ['Salmon', 'Broccoli', 'Rice'] },
-        { id: 2, listOfIngredients: ['Chicken', 'Tomatoes', 'Quinoa'] }
-    ]);
+		expect(result).toBeNull();
+	});
 
+	it('should return an empty array if an error occurs', async () => {
+		const ingredients = [ 'chicken', 'rice' ];
+		const diet = 'vegetarian';
+		const mealType = 'lunch';
+		const mealCalories = { calories: 300 };
+		const cuisine = 'italian';
 
-   
-});
- test('handles no results returned from API', async () => {
-   
-    mock.onGet(PROCESS.ENV.API_KEY_SPOONACULAR).reply(200, { results: [] });
+		mock.onGet('https://api.spoonacular.com/recipes/complexSearch?').networkError();
 
-    const ingredients = ['Eggs', 'Oats', 'Low-fat yogurt'];
-    const diet = 'Vegetarian';
-    const mealType = 'Breakfast Type';
-    const mealCalories = { calories: 500 };
-    const cuisine = ['Mediterranean'];
+		const result = await fetchMealsForMealType(ingredients, diet, mealType, mealCalories, cuisine);
 
-    
-    const result = await fetchMealsForMealType(ingredients, diet, mealType, mealCalories, cuisine);
-
-    expect(result).toEqual(null);
-});
-
-test('handle when API error', async () => {
-    
-    mock.onGet(PROCESS.ENV.API_KEY_SPOONACULAR).reply(500);
-
- 
-    const ingredients = ['Chicken', 'Salad', 'Tomatoes'];
-    const diet = 'Ketogenic';
-    const mealType = 'Lunch Type';
-    const mealCalories = { calories: 425 };
-    const cuisine = ['Asian'];
-
-    const result = await fetchMealsForMealType(ingredients, diet, mealType, mealCalories, cuisine);
-    expect(result).toEqual([]);
+		expect(result).toEqual([]);
+	});
 });

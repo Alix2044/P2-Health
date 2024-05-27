@@ -57,6 +57,14 @@ app.use(
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((err, req, res, next) => {
+	if (req.xhr) {
+		res.status(500).json({ error: 'Something failed!' });
+	} else {
+		res.status(500).send('Something failed!');
+	}
+});
+
 app.use('/uploads', express.static('uploads'));
 
 // Passport configuration
@@ -71,7 +79,7 @@ app.use('/posts', require('./routes/posts'));
 app.use('/chat', require('./routes/chat'));
 app.use('/challenges', require('./routes/challenge'));
 app.use('/mealplan', require('./routes/mealplan'));
-app.use('/profileSettings', require('./routes/profileSettings'));
+app.use('/profileSettings', require('./routes/profileSettings').router);
 
 // Route doesn't exist
 app.use((req, res, next) => {

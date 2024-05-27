@@ -9,3 +9,15 @@ uploads/
 
 cypress/e2e/1-getting-started
 cypress/e2e/2-advanced-examples
+cypress/e2e/communityPost
+cypress/e2e/auth
+cypress/e2e/profileSettings/index.spec.js
+cypress/fixtures
+cypress/support/
+cypress/integration
+cypress/screenshots
+
+coverage
+
+
+

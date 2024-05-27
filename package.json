@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest"
+    "test": "jest --config jest.config.js --detectOpenHandles --silent"
+  
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +15,7 @@
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "chai": "^5.1.1",
     "connect-mongo": "^5.1.0",
     "date-time-format-timezone": "^1.0.22",
     "ejs": "^3.1.10",

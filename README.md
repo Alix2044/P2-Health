@@ -1,4 +1,4 @@
-# Health Application for People with Obesity 
+# Health Application for People with Obesity - P2 Health Project
 
 
 ## Description
@@ -21,10 +21,5 @@ $ npm run dev
 
 # Visit [http://localhost:5000]
 
-## Test
 
-### Unit Test
-$ npm test
 
-### E2E
-$ npx cypress open

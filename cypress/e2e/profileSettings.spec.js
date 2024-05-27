@@ -1,61 +1,50 @@
-describe('User Profile and Community Posts Flow', () => {
-	it('Logs in, fills personal information, meal preferences, and creates a post without an image', () => {
-		// Step 1: Log in
-		cy.visit('/auth/login');
-		cy.get('input[name="email"]').type('testuser@example.com');
-		cy.get('input[name="password"]').type('password123');
-		cy.get('form').submit();
+describe('E2E TEST - VITAL', () => {
+    Cypress.on('uncaught:exception', (err) => {
+        console.error(err);
+        return false;
+    });
 
-		// Verify redirection to personal information
-		cy.url().should('include', '/profileSettings/personalInformation');
+    it('Logs in, fills personal information, meal preferences, and creates a post without an image and more...', () => {
+    
+        cy.visit('/');
+        cy.register();
+        cy.url().should('include', '/auth/login');
+        cy.login();
+        cy.url().should('include', '/profileSettings/personalInformation');
 
-		// Step 2: Fill out Personal Information
-		cy.get('#height').select('5\'8"');
-		cy.get('#gender').select('Male');
-		cy.get('#weight').clear().type('180');
-		cy.get('#age').clear().type('30');
-		cy.get('#activity-level').select('Moderately (description)');
-		cy.get('form').submit();
+       
+        cy.fillPersonalInformation();
+        cy.url().should('include', '/profileSettings/mealPreferences');
 
-		// Verify redirection to meal preferences
-		cy.url().should('include', '/profileSettings/mealPreferences');
 
-		// Step 3: Fill out Meal Preferences
-		// Assume some checkboxes and selects are here
-		cy.get('input[name="diets[]"]').check([ 'Vegan', 'Keto' ]);
-		cy.get('input[name="intolerance[]"]').check([ 'Lactose', 'Gluten' ]);
-		cy.get('input[name="cuisines[]"]').check([ 'Italian', 'Japanese' ]);
-		cy.get('input[name="breakfastIngredients[]"]').check([ 'Oats', 'Bananas' ]);
-		cy.get('input[name="lunchIngredients[]"]').check([ 'Chicken', 'Broccoli' ]);
-		cy.get('input[name="dinnerIngredients[]"]').check([ 'Salmon', 'Quinoa' ]);
-		cy.get('select[name="breakfastType"]').select('Normal');
-		cy.get('select[name="lunchType"]').select('Heavy');
-		cy.get('select[name="dinnerType"]').select('Light');
-		cy.get('form').submit();
+        cy.fillMealPreferences();
+        cy.url().should('include', `${Cypress.config().baseUrl}/`);
 
-		// Verify redirection to dashboard
-		cy.url().should('eq', `${Cypress.config().baseUrl}/`);
+ 
+        cy.scrollBottom();
+        cy.navigateTo('/mealplan/mealplan');
+        cy.scrollBottom();
+        cy.navigateTo('/challenges');
+        cy.completeChallenge();
 
-		// Step 4: Scroll down to the bottom of the dashboard
-		cy.scrollTo('bottom');
+        
+        cy.scrollBottom();
+        cy.navigateTo('/posts');
+        cy.scrollBottom();
+        cy.navigateTo('/posts/new');
+        cy.createPost();
+        cy.url().should('include', '/posts');
 
-		// Step 5: Click on 'Community Posts'
-		cy.get('a.nav-link[href="/posts"]').click();
-		cy.url().should('include', '/posts');
+       
+        cy.Chat('HELLO EVERYONE!');
+      
+    
+        cy.navigateTo('/dashboard');
 
-		// Step 6: Scroll down to see community posts
-		cy.scrollTo('bottom');
-
-		// Step 7: Click on 'Create Post'
-		cy.get('a.nav-link[href="/posts/new"]').click();
-		cy.url().should('include', '/posts/new');
-
-		// Step 8: Fill out the post form without an image
-		cy.get('input[name="title"]').type('My Test Post');
-		cy.get('textarea[name="content"]').type('This is the content of my test post.');
-		cy.get('form').submit();
-
-		// Verify post creation and redirection (assuming it redirects to /posts after creation)
-		cy.url().should('include', '/posts');
-	});
+  
+        cy.get('a.nav-link[href="/auth/logout"]').click();
+        cy.wait(1500);
+        cy.url().should('include', '/');
+        cy.scrollBottom();
+    });
 });

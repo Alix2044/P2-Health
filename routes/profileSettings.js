@@ -3,6 +3,7 @@ const { check, validationResult } = require('express-validator');
 const router=express.Router();
 const {ensureAuthenticated}= require('../auth/isAuthenticated')
 
+/* commented some console.log for testing purposes, you can add them back*/
 
 const validatePersonalInformation = require('../middleware/validatePersonalInformation')
 
@@ -92,7 +93,7 @@ router.put('/personalInformation', ensureAuthenticated, validatePersonalInformat
     const heightCM = height * 2.54;
 
     const BMR = calculateBMR( heightCM, weightKG, age, gender, activityLevel );
-    console.log(BMR);
+    //console.log(BMR);
     const calories = BMR - 500;
     const BMI = calculateBMI(weightKG, heightCM);
     const protein = calculateMacros(calories, 'protein');
@@ -121,7 +122,7 @@ router.put('/personalInformation', ensureAuthenticated, validatePersonalInformat
 
         }
 
-        console.log("Updated or created user:", userModel);
+      //  console.log("Updated or created user:", userModel);
 
         if (!user.questionnaireCompleted) {
             res.redirect('/profileSettings/mealPreferences');
@@ -130,7 +131,7 @@ router.put('/personalInformation', ensureAuthenticated, validatePersonalInformat
         }
 
     } catch (error) {
-        console.error("Error updating settings:", error);
+      //  console.error("Error updating settings:", error);
         req.flash('error', 'Error updating settings. Please try again.');
         res.redirect('/profileSettings/personalInformation');
     }
@@ -138,7 +139,7 @@ router.put('/personalInformation', ensureAuthenticated, validatePersonalInformat
 
 // TEST
 const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, cuisine) => {
-    console.log(ingredients);
+   // console.log(ingredients);
     const params = {
             apiKey: API_KEY,
             includeIngredients: ingredients.join(","),
@@ -162,7 +163,7 @@ const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, 
         const response = await axios.get(BASE_URL, { params });
         const meals = response.data.results;
         if (!meals || meals.length === 0) {
-            console.log("No results returned from API.");
+         //   console.log("No results returned from API.");
             return null;
         }
         const myRecipes = meals.map(recipe => {
@@ -172,10 +173,10 @@ const fetchMealsForMealType = async (ingredients, diet, mealType, mealCalories, 
                 listOfIngredients: listOfIngredients
             };
         });
-        console.log("MMMM" + " "+ myRecipes);
+        //console.log("MMMM" + " "+ JSON.stringify(myRecipes,null,2));
         return myRecipes;
     } catch (error) {
-        console.error(`Error fetching ${mealType}:`, error);
+   // console.error(`Error fetching ${mealType}:`, error);
         return [];
     }
 };
@@ -210,7 +211,7 @@ const findRecipeByIdBulk = async (ids) => {
             }
         }));
     } catch (error) {
-        console.error(`Error fetching recipes for IDs ${ids.join(', ')}:`, error);
+      //  console.error(`Error fetching recipes for IDs ${ids.join(', ')}:`, error);
         return [];
     }
 };
@@ -249,6 +250,7 @@ const createFinalMealPlan = (sortedMealPlans) => {
 
 // TEST
 async function createMealplan(userId, user){
+   
     console.log(user);
     const today = new Date();
     today.setHours(0, 0, 0, 0);  // Reset the time part to ensure all comparisons are only date-based
@@ -256,11 +258,12 @@ async function createMealplan(userId, user){
     console.log(dailyCalories);
 
     // Check for existing meal plan and remove it if it's under 7 days old
+    
     let mealPlan = await MealPlan.findOne({
         userId: userId,
         startDate: { $lte: today, $gte: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000) }
     });
-
+    console.log("111111#############")
     if (mealPlan) {
         await MealPlan.deleteOne({ _id: mealPlan._id });
     }
@@ -284,12 +287,12 @@ async function createMealplan(userId, user){
         for (const mealType of ['breakfast', 'lunch', 'dinner']) {
             const mealPreferences = user.mealPreferences[mealType];
             const mealCalories = calculateMealCalories(user.calories,mealPreferences);
-            console.log(mealType);
+          //  console.log(mealType);
             const ingredients = user[`${mealType}Ingredients`];
             const diets= user.diets;
             const cuisines=user.cuisine;
             const recipes = await fetchMealsForMealType(ingredients, diets, mealType, mealCalories, cuisines);
-            console.log(recipes);
+        //    console.log(recipes);
 
             let allRecipeIngredients = recipes.flatMap(recipe => recipe.listOfIngredients);
             const clearedIngredients = [...new Set(allRecipeIngredients)];
@@ -313,7 +316,7 @@ async function createMealplan(userId, user){
             sortedMealPlans[mealType] = sortedList;
         }
     }catch (error){
-        console.error("Error recipes: ", error);
+       // console.error("Error recipes: ", error);
         req.flash('error', 'Error getting the recipes. Please try again.');
         res.redirect('/profileSettings/mealPreferences');
 
@@ -369,7 +372,7 @@ async function createMealplan(userId, user){
         await mealPlan.save();
         console.log('Meal plan saved successfully');
     } catch (error) {
-        console.error('Failed to save meal plan:', error);
+       console.error('Failed to save meal plan:', error);
     }
 }
 
@@ -471,24 +474,25 @@ router.put('/mealPreferences',ensureAuthenticated, async (req, res) => {
         console.log("Updated user:", userId);
 
     } catch (error) {
-        console.error("Error updating settings: ", error);
+       // console.error("Error updating settings: ", error);
         req.flash('error', 'Error updating preferences. Please try again.');
         res.redirect('/profileSettings/mealPreferences');
     }
     const updatedUserModel = await UserModel.findById(userId);
 
     try {
+       // console.log("111111#############")
         await createMealplan(userId, updatedUserModel); 
         if (!user.questionnaireCompleted){
             user.questionnaireCompleted=true;
             await user.save();
             res.redirect('/dashboard');
         }else{
-            console.log("After");
-            res.redirect('/profileSettings/mealPreferences');
+        //console.log("After");
+           res.redirect('/profileSettings/mealPreferences');
         }  
     } catch (error) {
-        console.error("Error generating meal plan: ", error);
+    //    console.error("Error generating meal plan: ", error);
         req.flash('error', 'Error generating meal plan. Please try again.');
         res.redirect('/profileSettings/mealPreferences');
     }
@@ -586,7 +590,7 @@ function cosineSimilarity(magnitudes, dotProducts, myRecipes) {
 function sorting(cosineResults, myRecipes, topN = 7) {
     // Maybe use an actual sorting algorithm for report purposes. 
     cosineResults.sort((a, b) => b.score - a.score);
-    console.log("Sorted Cosine Results: " + JSON.stringify(cosineResults, null, 2));
+//    console.log("Sorted Cosine Results: " + JSON.stringify(cosineResults, null, 2));
     return cosineResults.slice(0, topN).map(x => ({
         id: myRecipes[x.index].id,
         score: x.score
@@ -599,6 +603,14 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
-//module.exports= {router,calculateBMI, calculateBMR, getActivityFactor,fetchMealsForMealType,
-  //  findRecipeByIdBulk,createMealplan}; 
-module.exports= router;
+module.exports = {
+    router,
+    calculateBMI,
+    calculateBMR,
+    getActivityFactor,
+    fetchMealsForMealType,
+    findRecipeByIdBulk,
+    createMealplan,
+    matrix,
+    cosineSimilarity
+};

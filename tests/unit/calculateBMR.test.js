@@ -1,12 +1,11 @@
-const { calculateBMI, calculateBMR, calculateMacros } = require('../../routes/profileSettings');
+const { calculateBMR } = require('../../routes/profileSettings');
 
-// Change the function parameter with actual data OMID
 describe('calculateBMR function', () => {
-	test('calculates BMR correctly for male with sedentary activity level', () => {
-		expect(calculateBMR(4, 150, 25, 'male', 'sedentary')).toEqual(1788);
+	test('Should calculate BMR  for female case', () => {
+		expect(calculateBMR(170, 72, 22, 'female', 'sedentary')).toEqual(1816);
 	});
 
-	test('calculates BMR correctly for female with moderate activity level', () => {
-		expect(calculateBMR(5, 160, 25, 'female', 'lightly')).toEqual(1573);
+	test('Should calculate BMR for male case', () => {
+		expect(calculateBMR(190, 90, 25, 'male', 'sedentary')).toEqual(2363);
 	});
 });
